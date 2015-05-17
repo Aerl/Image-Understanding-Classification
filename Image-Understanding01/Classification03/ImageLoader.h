@@ -11,16 +11,28 @@
 
 class ImageLoader
 {
-	std::string path;
+	struct Parameters
+	{
+		int ROIx;
+		int ROIy;
+		//! Default constructor ensuring that all variables are initialized.
+		Parameters();
+	};
+
+	std::string path;	
 	std::vector<cv::Mat> images;
-	std::vector<std::string> folders;
-public:
+	Parameters parameters;
+public:	
 	ImageLoader();
-	ImageLoader(std::string path);	
-	void LoadAllImagesFromSubfolder(std::string subfolder);
-	void LoadAllImagesFromSubfolders(std::vector<std::string> subfolders);
+	ImageLoader(std::string &path);	
+	void LoadAllImagesFromSubfolder(std::string &subfolder);
+	void LoadAllImagesFromSubfolders(std::vector<std::string> &subfolders);
 	void LoadAllImages();
+	void ScaleAndCropImage(cv::Mat &InputImage, cv::Mat &OutpuImage);
+
+	//getters
+	std::vector<cv::Mat> getImages();
 private:
-	void LoadImagesFromFolder(std::string Folder, int maxNumImg);
+	void LoadImagesFromFolder(std::string &Folder, int maxNumImg);
 };
 
