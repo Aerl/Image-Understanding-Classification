@@ -29,6 +29,17 @@ int _tmain(int argc, _TCHAR* argv[])
 	folders.push_back("../101_ObjectCategories/wrench");
 	LoadImages.LoadAllImagesFromSubfolders(folders);
 
+	std::vector<cv::Mat> images = LoadImages.getImages();
+
+	for (std::vector<cv::Mat>::iterator iter = images.begin(); iter != images.end(); ++iter)
+	{
+
+		namedWindow("Show Images", cv::WINDOW_AUTOSIZE);
+
+		imshow("Show Images", *iter);
+		cv::waitKey(100);
+	}
+
 	return 0;
 }
 
