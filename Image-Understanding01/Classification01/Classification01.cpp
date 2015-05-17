@@ -1,6 +1,7 @@
 // Classification01.cpp : Defines the entry point for the console application.
 //
 
+
 #include "stdafx.h"
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -15,7 +16,8 @@ int main( int argc, char** argv )
 	
 
 	Mat image;
-	image = imread("../opencv-logo.png", IMREAD_COLOR); // Read the file
+	//image = imread("../101_ObjectCategories/accordion/image_0001.jpg", IMREAD_COLOR); // Read the file
+	image = imread("D:/HELP/image_01.jpg", IMREAD_COLOR); // Read the file
 
 	if (!image.data) // Check for invalid input
 	{
