@@ -32,7 +32,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	folders.push_back("../101_ObjectCategories/airplanes");
 
 	
-	LoadImages.LoadImages(5);
+	LoadImages.LoadImagesFromSubfolders(folders, 5);
 
 	std::vector<cv::Mat> images = LoadImages.getImages();
 
