@@ -20,14 +20,19 @@ int _tmain(int argc, _TCHAR* argv[])
 	//LoadImages.LoadAllImages();
 
 	std::vector<std::string> folders;
-	folders.push_back("../101_ObjectCategories/accordion");
-	folders.push_back("../101_ObjectCategories/crab");
-	folders.push_back("../101_ObjectCategories/garfield");
+	//folders.push_back("../101_ObjectCategories/accordion");
+	//folders.push_back("../101_ObjectCategories/crab");
+	//folders.push_back("../101_ObjectCategories/garfield");
 	folders.push_back("../101_ObjectCategories/octopus");
 	folders.push_back("../101_ObjectCategories/scissors");
-	folders.push_back("../101_ObjectCategories/sunflower");
-	folders.push_back("../101_ObjectCategories/wrench");
-	LoadImages.LoadAllImagesFromSubfolders(folders);
+	//folders.push_back("../101_ObjectCategories/sunflower");
+	//folders.push_back("../101_ObjectCategories/wrench");
+	folders.push_back("../101_ObjectCategories/helicopter");
+	//folders.push_back("../101_ObjectCategories/platypus");
+	folders.push_back("../101_ObjectCategories/airplanes");
+
+	
+	LoadImages.LoadImages(5);
 
 	std::vector<cv::Mat> images = LoadImages.getImages();
 
@@ -37,7 +42,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		namedWindow("Show Images", cv::WINDOW_AUTOSIZE);
 
 		imshow("Show Images", *iter);
-		cv::waitKey(100);
+		cv::waitKey(300);
 	}
 
 	return 0;
