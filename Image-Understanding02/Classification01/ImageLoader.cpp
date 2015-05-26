@@ -65,7 +65,7 @@ void ImageLoader::LoadImages()
 				if (subfolder->d_type == 16384) //type is folder
 				{
 					folderName = subfolder->d_name;
-						if (folderName != "." && folderName != "..")
+						if (folderName != "." && folderName != ".." && folderName != "BACKGROUND_Google")
 					{
 						std::string folder = this->path + "/" + folderName;
 						std::cout << "Folder: " + folderName << std::endl;
@@ -89,7 +89,7 @@ void ImageLoader::LoadImages()
 				if (subfolder->d_type == 16384) //type is folder
 				{
 					folderName = subfolder->d_name;
-					if (folderName != "." && folderName != "..")
+					if (folderName != "." && folderName != ".." && folderName != "BACKGROUND_Google")
 					{
 						LoadImagesFromFolder(folderName, minNumImg);
 					}
