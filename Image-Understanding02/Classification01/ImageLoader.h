@@ -8,6 +8,7 @@
 #include <sys/types.h>
 #include <stdlib.h>
 #include <time.h>
+#include <limits.h>
 #include<string>
 #include<vector>
 
@@ -22,25 +23,23 @@ class ImageLoader
 	};
 
 	std::string path;	
-	std::vector<cv::Mat> images;
+	std::vector<cv::Mat> TrainingImages;
+	std::vector<cv::Mat> TestImages;
 	Parameters parameters;
 public:	
 	//constructor
 	ImageLoader();
 	ImageLoader(std::string &path);	
 	//functions
-	void LoadAllImagesFromSubfolder(std::string &subfolder);
-	void LoadImagesFromSubfolder(std::string &subfolder, int maxNumImg);
-	void LoadAllImagesFromSubfolders(std::vector<std::string> &subfolders);
-	void LoadImagesFromSubfolders(std::vector<std::string> &subfolders, int maxNumImg);
-	void LoadAllImages();
-	void LoadImages(int maxNumImg);
+	void LoadImagesFromSubfolders(std::vector<std::string> &subfolders);
+	void LoadImages();
 	//getter
-	std::vector<cv::Mat> getImages();
+	std::vector<cv::Mat> getTrainingImages();
+	std::vector<cv::Mat> getTestImages();
 private:
+	int getNumberOfImages(std::string &Folder);
 	void ScaleAndCropImage(cv::Mat &InputImage, cv::Mat &OutpuImage);
-	void LoadImagesFromFolder(std::string &Folder, int maxNumImg);
-	void SelectAndCopyImages(std::vector<cv::Mat> &AllImages, int maxNumImg);
-	void ImageLoader::CopyAllImages(std::vector<cv::Mat> &AllImages);
+	void LoadImagesFromFolder(std::string &Folder, int NumImg);
+	void SelectAndCopyImages(std::vector<cv::Mat> &AllImages, int NumImg);
 };
 
