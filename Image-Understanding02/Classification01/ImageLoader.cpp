@@ -17,11 +17,11 @@ ImageLoader::ImageLoader(std::string &path)
 	this->path = path;
 }
 
-std::vector<cv::Mat> ImageLoader::getTrainingImages()
+std::vector<Image> ImageLoader::getTrainingImages()
 {
 	return this->TrainingImages;
 }
-std::vector<cv::Mat> ImageLoader::getTestImages()
+std::vector<Image> ImageLoader::getTestImages()
 {
 	return this->TestImages;
 }
@@ -44,8 +44,7 @@ void ImageLoader::LoadImagesFromSubfolders(std::vector<std::string> &subfolders)
 	//Load images for training and testing from each subfolder
 	for (std::vector<std::string>::iterator iter = subfolders.begin(); iter != subfolders.end(); ++iter)
 	{
-		std::string folder = this->path + "/" + *iter;
-		this->LoadImagesFromFolder(folder, minNumImg);
+		this->LoadImagesFromFolder(*iter, minNumImg);
 	}
 }
 
@@ -92,7 +91,7 @@ void ImageLoader::LoadImages()
 					folderName = subfolder->d_name;
 					if (folderName != "." && folderName != "..")
 					{
-						LoadImagesFromFolder(this->path + "/" + folderName, minNumImg);
+						LoadImagesFromFolder(folderName, minNumImg);
 					}
 				}
 			}
@@ -138,7 +137,8 @@ void ImageLoader::LoadImagesFromFolder(std::string &folder, int NumImg)
 	//Random selection of restricted number of entries.
 	std::cout << "Folder: " + folder << std::endl;
 	std::vector<cv::Mat> CurrentFolder;
-	DIR* directory = opendir(folder.c_str());
+	std::string directoryName = this->path + "/" + folder;
+	DIR* directory = opendir(directoryName.c_str());
 	std::string imgName;
 	struct dirent *entry;
 
@@ -151,8 +151,7 @@ void ImageLoader::LoadImagesFromFolder(std::string &folder, int NumImg)
 				imgName = entry->d_name;
 				if (imgName != "." && imgName != "..")
 				{
-					std::string FullImagePath = folder + "/" + imgName;
-					//std::cout << "Full Path: " + FullImagePath << std::endl;
+					std::string FullImagePath = directoryName + "/" + imgName;
 					cv::Mat img;
 					img = cv::imread(FullImagePath);
 					if (!img.data) //check if image is not empty
@@ -172,7 +171,7 @@ void ImageLoader::LoadImagesFromFolder(std::string &folder, int NumImg)
 			}
 		}
 		closedir(directory);
-		SelectAndCopyImages(CurrentFolder, NumImg);
+		SelectAndCopyImages(CurrentFolder, NumImg, folder);
 		std::cout << "   Fully Loaded" << std::endl;
 	}
 }
@@ -192,7 +191,7 @@ void ImageLoader::ScaleAndCropImage(cv::Mat &InputImage, cv::Mat &OutpuImage)
 	OutpuImage = OutpuImage(newROI);
 }
 
-void ImageLoader::SelectAndCopyImages(std::vector<cv::Mat> &AllImages, int NumImg)
+void ImageLoader::SelectAndCopyImages(std::vector<cv::Mat> &AllImages, int NumImg, std::string category)
 {
 	//According to maxNumImg random images are selected from the folder.
 	//If maxNumImg is larger than the number of elements in the folder, all images are loaded instead.
@@ -221,8 +220,8 @@ void ImageLoader::SelectAndCopyImages(std::vector<cv::Mat> &AllImages, int NumIm
 		}
 		else
 		{
-			std::cout << "  Index: " + std::to_string(index) << std::endl;
-			this->TrainingImages.push_back(AllImages[index]);
+			//std::cout << "  Index: " + std::to_string(index) << std::endl;
+			this->TrainingImages.push_back(Image(AllImages[index], category));
 			indices.push_back(index);
 		}
 	}
@@ -237,8 +236,8 @@ void ImageLoader::SelectAndCopyImages(std::vector<cv::Mat> &AllImages, int NumIm
 		}
 		else
 		{
-			std::cout << "  Index: " + std::to_string(index) << std::endl;
-			this->TestImages.push_back(AllImages[index]);
+			//std::cout << "  Index: " + std::to_string(index) << std::endl;
+			this->TestImages.push_back(Image(AllImages[index], category));
 			indices.push_back(index);
 		}
 	}

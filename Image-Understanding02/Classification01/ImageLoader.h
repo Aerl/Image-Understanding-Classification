@@ -9,8 +9,9 @@
 #include <stdlib.h>
 #include <time.h>
 #include <limits.h>
-#include<string>
-#include<vector>
+#include "Image.h"
+#include <string>
+#include <vector>
 
 class ImageLoader
 {
@@ -23,8 +24,8 @@ class ImageLoader
 	};
 
 	std::string path;	
-	std::vector<cv::Mat> TrainingImages;
-	std::vector<cv::Mat> TestImages;
+	std::vector<Image> TrainingImages;
+	std::vector<Image> TestImages;
 	Parameters parameters;
 public:	
 	//constructor
@@ -34,12 +35,12 @@ public:
 	void LoadImagesFromSubfolders(std::vector<std::string> &subfolders);
 	void LoadImages();
 	//getter
-	std::vector<cv::Mat> getTrainingImages();
-	std::vector<cv::Mat> getTestImages();
+	std::vector<Image> getTrainingImages();
+	std::vector<Image> getTestImages();
 private:
 	int getNumberOfImages(std::string &Folder);
 	void ScaleAndCropImage(cv::Mat &InputImage, cv::Mat &OutpuImage);
 	void LoadImagesFromFolder(std::string &Folder, int NumImg);
-	void SelectAndCopyImages(std::vector<cv::Mat> &AllImages, int NumImg);
+	void SelectAndCopyImages(std::vector<cv::Mat> &AllImages, int NumImg, std::string category);
 };
 

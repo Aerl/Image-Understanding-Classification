@@ -7,6 +7,7 @@
 #include "DecisionMaker.h"
 #include "EvaluationUnit.h"
 #include "FeatureExtractor.h"
+#include "Image.h"
 #include<string>
 
 
@@ -28,28 +29,29 @@ int _tmain(int argc, _TCHAR* argv[])
 	//folders.push_back("../101_ObjectCategories/airplanes");
 
 
-	//LoadImages.LoadImagesFromSubfolders(folders);
-	LoadImages.LoadImages();
+	LoadImages.LoadImagesFromSubfolders(folders);
+	//LoadImages.LoadImages();
+	std::vector<Image> trainingImages = LoadImages.getTrainingImages();
 
-	std::vector<cv::Mat> trainingImages = LoadImages.getTrainingImages();
-
-	for (std::vector<cv::Mat>::iterator iter = trainingImages.begin(); iter != trainingImages.end(); ++iter)
+	for (std::vector<Image>::iterator iter = trainingImages.begin(); iter != trainingImages.end(); ++iter)
 	{
 
 		namedWindow("Show Images", cv::WINDOW_AUTOSIZE);
 
-		imshow("Show Images", *iter);
+		imshow("Show Images", iter->data);
+		std::cout << "  class: " + iter->category << std::endl;
 		cv::waitKey(300);
 	}
 
-	std::vector<cv::Mat> testImages = LoadImages.getTestImages();
+	std::vector<Image> testImages = LoadImages.getTestImages();
 
-	for (std::vector<cv::Mat>::iterator iter = testImages.begin(); iter != testImages.end(); ++iter)
+	for (std::vector<Image>::iterator iter = testImages.begin(); iter != testImages.end(); ++iter)
 	{
 
 		namedWindow("Show Images", cv::WINDOW_AUTOSIZE);
 
-		imshow("Show Images", *iter);
+		imshow("Show Images", iter->data);
+		std::cout << "  class: " + iter->category << std::endl;
 		cv::waitKey(300);
 	}
 
