@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include <time.h>
 #include <limits.h>
-#include "Image.h"
 #include <string>
 #include <vector>
 
@@ -24,20 +23,24 @@ class ImageLoader
 	};
 
 	std::string path;	
-	std::vector<Image> TrainingImages;
-	std::vector<Image> TestImages;
+	std::vector<cv::Mat> TrainingImages;
+	std::vector<int> TrainingLabels;
+	std::vector<cv::Mat> TestImages;
+	std::vector<int> TestLabels;
+	std::vector<std::string> ClassNames;
 	Parameters parameters;
 public:	
 	//constructor
 	ImageLoader();
+	~ImageLoader();
 	ImageLoader(std::string &path);	
 	//functions
 	void LoadImagesFromSubfolders(std::vector<std::string> &subfolders);
 	void LoadImages();
 	//getter
-	std::vector<Image> getTrainingImages();
-	std::vector<Image> getTestImages();
-private:
+	void getTrainingData(std::vector<cv::Mat> &TrainingImages, std::vector<int> &TrainingLabels);
+	void getTestData(std::vector<cv::Mat> &TestImages, std::vector<int> &TestLabels);
+	//private:
 	int getNumberOfImages(std::string &Folder);
 	void ScaleAndCropImage(cv::Mat &InputImage, cv::Mat &OutpuImage);
 	void LoadImagesFromFolder(std::string &Folder, int NumImg);
