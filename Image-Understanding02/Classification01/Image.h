@@ -11,6 +11,7 @@ public:
 	std::string category;
 
 	Image();
+	~Image();
 	Image(cv::Mat data, std::string category);
 };
 

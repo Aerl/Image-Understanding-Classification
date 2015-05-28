@@ -11,19 +11,25 @@ ImageLoader::ImageLoader()
 {
 }
 
+ImageLoader::~ImageLoader()
+{
+}
+
 ImageLoader::ImageLoader(std::string &path)
 {
 	//Contructor with path to the '101_ObjectCategories'-folder
 	this->path = path;
 }
 
-std::vector<Image> ImageLoader::getTrainingImages()
+void ImageLoader::getTrainingData(std::vector<cv::Mat> &TrainingImages, std::vector<int> &TrainingLabels)
 {
-	return this->TrainingImages;
+	TrainingImages = this->TrainingImages;
+	TrainingLabels = this->TrainingLabels;
 }
-std::vector<Image> ImageLoader::getTestImages()
+void ImageLoader::getTestData(std::vector<cv::Mat> &TestImages, std::vector<int> &TestLabels)
 {
-	return this->TestImages;
+	TestImages = this->TestImages;
+	TestLabels = this->TestLabels;
 }
 
 void ImageLoader::LoadImagesFromSubfolders(std::vector<std::string> &subfolders)
@@ -34,7 +40,7 @@ void ImageLoader::LoadImagesFromSubfolders(std::vector<std::string> &subfolders)
 	for (std::vector<std::string>::iterator iter = subfolders.begin(); iter != subfolders.end(); ++iter)
 	{
 		std::string folder = this->path + "/" + *iter;
-		std::cout << "Folder: " + *iter << std::endl;
+		//std::cout << "Folder: " + *iter << std::endl;
 		int SizeOfFolder = this->getNumberOfImages(folder);
 		minNumImg = min(SizeOfFolder, minNumImg);
 	}
@@ -68,7 +74,7 @@ void ImageLoader::LoadImages()
 						if (folderName != "." && folderName != ".." && folderName != "BACKGROUND_Google")
 					{
 						std::string folder = this->path + "/" + folderName;
-						std::cout << "Folder: " + folderName << std::endl;
+						//std::cout << "Folder: " + folderName << std::endl;
 						int SizeOfFolder = this->getNumberOfImages(folder);
 						minNumImg = min(SizeOfFolder, minNumImg);
 					}
@@ -146,34 +152,35 @@ void ImageLoader::LoadImagesFromFolder(std::string &folder, int NumImg)
 	{
 		while (entry = readdir(directory))
 		{
-			if (entry != NULL)
-			{
-				imgName = entry->d_name;
-				if (imgName != "." && imgName != "..")
-				{
-					std::string FullImagePath = directoryName + "/" + imgName;
-					cv::Mat img;
-					img = cv::imread(FullImagePath);
-					if (!img.data) //check if image is not empty
+					if (entry != NULL)
 					{
-						std::cout << "Invalid Image -  No Data" << std::endl;
-						return;
-					}
-					cv::Mat out;
-					ScaleAndCropImage(img, out);
-					CurrentFolder.push_back(out);
+						imgName = entry->d_name;
+						if (imgName != "." && imgName != "..")
+						{
+							std::string FullImagePath = directoryName + "/" + imgName;
+							cv::Mat img;
+							img = cv::imread(FullImagePath, CV_LOAD_IMAGE_COLOR);
+							if (!img.data) //check if image is not empty
+							{
+								std::cout << "Invalid Image -  No Data" << std::endl;
+								return;
+							}
+							cv::Mat out;
+							ScaleAndCropImage(img, out);
+							CurrentFolder.push_back(out);
 
-				}
-			}
-			else
-			{
-				std::cout << "Invalid Entry - NULL" << std::endl;
-			}
+						}
+					}
+					else
+					{
+						std::cout << "Invalid Entry - NULL" << std::endl;
+					}
 		}
-		closedir(directory);
+
 		SelectAndCopyImages(CurrentFolder, NumImg, folder);
 		std::cout << "   Fully Loaded" << std::endl;
 	}
+	closedir(directory);
 }
 
 void ImageLoader::ScaleAndCropImage(cv::Mat &InputImage, cv::Mat &OutpuImage)
@@ -204,7 +211,8 @@ void ImageLoader::SelectAndCopyImages(std::vector<cv::Mat> &AllImages, int NumIm
 
 	//std::cout << "  Maximum Number Of Images: " + std::to_string(maxNumImg) << std::endl;
 	//std::cout << "  Images in Folder: " + std::to_string(AllImages.size()) << std::endl;
-
+	int Label = this->ClassNames.size();
+	this->ClassNames.push_back(category);
 
 	int NumEl = AllImages.size();
 	std::vector<int> indices;
@@ -221,7 +229,8 @@ void ImageLoader::SelectAndCopyImages(std::vector<cv::Mat> &AllImages, int NumIm
 		else
 		{
 			//std::cout << "  Index: " + std::to_string(index) << std::endl;
-			this->TrainingImages.push_back(Image(AllImages[index], category));
+			this->TrainingImages.push_back(AllImages[index]);
+			this->TrainingLabels.push_back(Label);
 			indices.push_back(index);
 		}
 	}
@@ -237,7 +246,8 @@ void ImageLoader::SelectAndCopyImages(std::vector<cv::Mat> &AllImages, int NumIm
 		else
 		{
 			//std::cout << "  Index: " + std::to_string(index) << std::endl;
-			this->TestImages.push_back(Image(AllImages[index], category));
+			this->TestImages.push_back(AllImages[index]);
+			this->TestLabels.push_back(Label);
 			indices.push_back(index);
 		}
 	}
