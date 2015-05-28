@@ -32,8 +32,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::vector<cv::Mat> trainingImages;
 	std::vector<int> trainingLabels;
 	LoadImages.getTrainingData(trainingImages, trainingLabels);
+
 	std::vector<std::vector< cv::Mat >> FeatureVectors = std::vector<std::vector< cv::Mat>>(trainingImages.size());
-	
 	GetFeatures.computeHOGFeatures(trainingImages, FeatureVectors);
 
 	//cv::Mat Feature = FeatureVectors[3][0];

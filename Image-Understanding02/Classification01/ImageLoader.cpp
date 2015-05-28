@@ -3,8 +3,8 @@
 
 ImageLoader::Parameters::Parameters()
 {
-	this->ROIx = 300;
-	this->ROIy = 300;
+	this->ROIx = 150;
+	this->ROIy = 150;
 }
 
 ImageLoader::ImageLoader()
