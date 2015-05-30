@@ -36,6 +36,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::vector<std::vector< cv::Mat >> FeatureVectors = std::vector<std::vector< cv::Mat>>(trainingImages.size());
 	GetFeatures.computeHOGFeatures(trainingImages, FeatureVectors);
 
+	std::vector<std::vector< cv::Mat >> FeatureVectorsSURF = std::vector<std::vector< cv::Mat>>(trainingImages.size());
+	GetFeatures.computeHOGFeatures(trainingImages, FeatureVectorsSURF);
+
 	//cv::Mat Feature = FeatureVectors[3][0];
 
 	//std::cout << "  Feature: " + std::to_string(FeatureVectors.size()) << std::endl;

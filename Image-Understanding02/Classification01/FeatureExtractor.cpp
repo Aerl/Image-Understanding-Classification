@@ -18,6 +18,28 @@ FeatureExtractor::~FeatureExtractor()
 
 }
 
+void FeatureExtractor::computeSURFFeatures(std::vector<cv::Mat> &Images, std::vector<std::vector< cv::Mat >> &FeatureVectorsSURF)
+{
+
+	int minHessian = 400;
+
+	cv::SurfFeatureDetector detector(minHessian);
+	cv::SurfDescriptorExtractor surf;
+
+	std::vector<std::vector<cv::KeyPoint>> keypoints;
+	cv::Mat descriptor;
+	int index = 0;
+
+	for (cv::Mat image : Images)
+	{
+		keypoints.push_back(std::vector<cv::KeyPoint>());
+		detector.detect(image, keypoints.at(index));
+		surf.compute(image, keypoints.at(index), descriptor);
+		FeatureVectorsSURF[index].push_back(cv::Mat(descriptor).clone());
+		index++;
+	}
+}
+
 void FeatureExtractor::computeHOGFeatures(std::vector<cv::Mat> &Images, std::vector<std::vector< cv::Mat >> &FeatureVectors)
 {
 	cv::HOGDescriptor hog;
