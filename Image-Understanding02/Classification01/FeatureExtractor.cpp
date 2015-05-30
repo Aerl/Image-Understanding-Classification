@@ -35,7 +35,7 @@ void FeatureExtractor::computeSURFFeatures(std::vector<cv::Mat> &Images, std::ve
 		keypoints.push_back(std::vector<cv::KeyPoint>());
 		detector.detect(image, keypoints.at(index));
 		surf.compute(image, keypoints.at(index), descriptor);
-		FeatureVectorsSURF[index].push_back(cv::Mat(descriptor).clone());
+		FeatureVectorsSURF[index].push_back(descriptor.clone());
 		index++;
 	}
 }
