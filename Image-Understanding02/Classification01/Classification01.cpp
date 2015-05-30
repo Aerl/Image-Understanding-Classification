@@ -37,7 +37,46 @@ int _tmain(int argc, _TCHAR* argv[])
 	GetFeatures.computeHOGFeatures(trainingImages, FeatureVectors);
 
 	std::vector<std::vector< cv::Mat >> FeatureVectorsSURF = std::vector<std::vector< cv::Mat>>(trainingImages.size());
-	GetFeatures.computeHOGFeatures(trainingImages, FeatureVectorsSURF);
+	GetFeatures.computeSURFFeatures(trainingImages, FeatureVectorsSURF);
+
+	int num_files = trainingImages.size();
+	int img_area = 150*150;
+	cv::Mat labels(num_files, 1, CV_32FC1);
+	cv::Mat training_mat(num_files, img_area, CV_32FC1);
+	int labelIndex = 0;
+
+	// reshape Images to one Mat for the SVM
+	for (cv::Mat img_mat : trainingImages)
+	{
+		int ii = 0;
+		for (int i = 0; i < img_mat.rows; i++) 
+		{
+			for (int j = 0; j < img_mat.cols; j++) 
+			{
+				training_mat.at<float>(labelIndex,ii++) = img_mat.at<uchar>(i, j);
+			}
+		}
+		labels.at<float>(labelIndex) = trainingLabels.at(labelIndex);
+		labelIndex++;
+	}
+	
+	// set up SVM parameters
+	CvSVMParams params;
+	params.svm_type = CvSVM::C_SVC;
+	params.kernel_type = CvSVM::LINEAR;
+	params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
+	//...etc
+
+	// set up Support Vector Machine for training and classification 
+	cv::SVM svm; 
+	svm.train(training_mat, labels, cv::Mat(), cv::Mat(), params);
+
+	// svm.predict to classifie an image
+
+
+
+
+
 
 	//cv::Mat Feature = FeatureVectors[3][0];
 
