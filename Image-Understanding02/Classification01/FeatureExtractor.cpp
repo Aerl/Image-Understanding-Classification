@@ -53,7 +53,7 @@ void FeatureExtractor::computeHOGFeatures(std::vector<cv::Mat> &Images, std::vec
 	{
 		cv::cvtColor(Images[iter], gray, cv::COLOR_BGR2GRAY);
 		hog.compute(gray, descriptors, cv::Size(8, 8), cv::Size(0, 0), location);
-		std::cout << "  Feature Size: " + std::to_string(descriptors.size()) << std::endl;
+		//std::cout << "  Feature Size: " + std::to_string(descriptors.size()) << std::endl;
 		FeatureVectors[iter].push_back(cv::Mat(descriptors).clone());
 	}
 }
