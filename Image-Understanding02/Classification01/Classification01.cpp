@@ -71,8 +71,14 @@ int _tmain(int argc, _TCHAR* argv[])
 	cv::SVM svm; 
 	svm.train(training_mat, labels, cv::Mat(), cv::Mat(), params);
 
-	// svm.predict to classifie an image
+	// svm.predict to classify an image
+	std::vector<cv::Mat> testData;
+	std::vector<int> testLabels;
+	LoadImages.getTrainingData(testData, testLabels);
 
+	cv::Mat test2 = training_mat.row(18);
+
+	int p = svm.predict(test2);
 
 
 
