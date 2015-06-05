@@ -28,8 +28,10 @@ class ImageLoader
 	std::vector<cv::Mat> TestImages;
 	std::vector<int> TestLabels;
 	std::vector<std::string> ClassNames;
-	Parameters parameters;
+	int SampleSize;
+	
 public:	
+	Parameters parameters;
 	//constructor
 	ImageLoader();
 	~ImageLoader();
@@ -40,6 +42,8 @@ public:
 	//getter
 	void getTrainingData(std::vector<cv::Mat> &TrainingImages, std::vector<int> &TrainingLabels);
 	void getTestData(std::vector<cv::Mat> &TestImages, std::vector<int> &TestLabels);
+	void getClassNames(std::vector<std::string> &ClassNames);
+	void getSampleSize(int &SampleSize);
 	//private:
 	int getNumberOfImages(std::string &Folder);
 	void ScaleAndCropImage(cv::Mat &InputImage, cv::Mat &OutpuImage);

@@ -26,10 +26,21 @@ void ImageLoader::getTrainingData(std::vector<cv::Mat> &TrainingImages, std::vec
 	TrainingImages = this->TrainingImages;
 	TrainingLabels = this->TrainingLabels;
 }
+
 void ImageLoader::getTestData(std::vector<cv::Mat> &TestImages, std::vector<int> &TestLabels)
 {
 	TestImages = this->TestImages;
 	TestLabels = this->TestLabels;
+}
+
+void ImageLoader::getClassNames(std::vector<std::string> &ClassNames)
+{
+	ClassNames = this->ClassNames;
+}
+
+void ImageLoader::getSampleSize(int &SampleSize)
+{
+	SampleSize = this->SampleSize;
 }
 
 void ImageLoader::LoadImagesFromSubfolders(std::vector<std::string> &subfolders)
