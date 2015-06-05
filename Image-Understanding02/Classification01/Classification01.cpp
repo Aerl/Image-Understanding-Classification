@@ -22,14 +22,14 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	std::vector<std::string> folders;
 	folders.push_back("accordion");
-	folders.push_back("airplanes");
-	folders.push_back("anchor");
-	folders.push_back("ant");
-	folders.push_back("barrel");
-	folders.push_back("bass");
-	folders.push_back("beaver");
-	folders.push_back("binocular");
-	folders.push_back("bonsai");
+	//folders.push_back("airplanes");
+	//folders.push_back("anchor");
+	//folders.push_back("ant");
+	//folders.push_back("barrel");
+	//folders.push_back("bass");
+	//folders.push_back("beaver");
+	//folders.push_back("binocular");
+	//folders.push_back("bonsai");
 
 
 
@@ -48,40 +48,38 @@ int _tmain(int argc, _TCHAR* argv[])
 	GetFeatures.computeHOGFeatures(trainingImages, FeatureVectors);
 	GetFeatures.computeColorFeatures(trainingImages, FeatureVectors);
 
-	std::vector<std::vector< cv::Mat >> SURFTrain = std::vector<std::vector< cv::Mat>>(trainingImages.size());
-	GetFeatures.computeSURFFeatures(trainingImages, SURFTrain);
+	cv::Mat FeatureVectorsSURFUnclustered;
+	GetFeatures.computeSURFFeatures(trainingImages, FeatureVectorsSURFUnclustered);
 
-	std::vector<std::vector< cv::Mat >> SURFTest = std::vector<std::vector< cv::Mat>>(testImages.size());
-	GetFeatures.computeSURFFeatures(testImages, SURFTest);
+	cv::Mat dictionary;
+	cv::Mat clusteredFeatures;
+	GetFeatures.getBagOfWords(testImages, FeatureVectorsSURFUnclustered, dictionary, clusteredFeatures);
 
-	std::vector<int> classificationResults = std::vector<int>(testImages.size());
-<<<<<<< HEAD
-	GetFeatures.MakeDecisionFLANN(SURFTrain, SURFTest, trainingLabels, classificationResults);
-=======
-	GetClassification.MakeDecisionFLANN(SURFTrain, SURFTest, trainingLabels, classificationResults);
-*/
->>>>>>> origin/master
+	//std::vector<int> classificationResults = std::vector<int>(testImages.size());
+	//GetFeatures.MakeDecisionFLANN(SURFTrain, SURFTest, trainingLabels, classificationResults);
+	//GetClassification.MakeDecisionFLANN(SURFTrain, SURFTest, trainingLabels, classificationResults);
 
-	std::vector<std::string> classNames;
-	LoadImages.getClassNames(classNames);
-	int NumberOfSamples;
-	LoadImages.getSampleSize(NumberOfSamples);
-	int NumberOfClasses = classNames.size();
 
-	EvaluationUnit GetEvaluation(testLabels,NumberOfClasses,NumberOfSamples);
 
-	double percent = GetEvaluation.EvaluateResultSimple(classificationResults);
-	std::cout << "Simple Percentage: " + std::to_string(percent) << std::endl;
+	//std::vector<std::string> classNames;
+	//LoadImages.getClassNames(classNames);
+	//int NumberOfSamples;
+	//LoadImages.getSampleSize(NumberOfSamples);
+	//int NumberOfClasses = classNames.size();
 
-	std::vector<double> classPercentage;
-	std::vector<std::vector<int>> statistics;
-	GetEvaluation.EvaluateResultComplex(classificationResults, classPercentage, statistics);
-	for (int i = 0; i < classPercentage.size(); i++)
-	{
-		std::cout << "Complex Percentage Class " + std::to_string(i) + " : " + std::to_string(classPercentage[i]) << std::endl;
-	}
-<<<<<<< HEAD
-=======
+	//EvaluationUnit GetEvaluation(testLabels,NumberOfClasses,NumberOfSamples);
+
+	//double percent = GetEvaluation.EvaluateResultSimple(classificationResults);
+	//std::cout << "Simple Percentage: " + std::to_string(percent) << std::endl;
+
+	//std::vector<double> classPercentage;
+	//std::vector<std::vector<int>> statistics;
+	//GetEvaluation.EvaluateResultComplex(classificationResults, classPercentage, statistics);
+	//for (int i = 0; i < classPercentage.size(); i++)
+	//{
+	//	std::cout << "Complex Percentage Class " + std::to_string(i) + " : " + std::to_string(classPercentage[i]) << std::endl;
+	//}
+
 
 
 	//int num_files = trainingImages.size();
@@ -160,7 +158,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		std::cout << "  class: " + iter->category << std::endl;
 		cv::waitKey(300);
 	}*/
->>>>>>> origin/master
 
 	return 0;
 }
