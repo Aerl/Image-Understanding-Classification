@@ -7,11 +7,11 @@
 
 class EvaluationUnit
 {
-	std::vector<Image> TestImages;
+	std::vector<int> TestLabels;
 
 public:
 	EvaluationUnit();
-	EvaluationUnit(std::vector<Image> TestImages);
-	double EvaluateResultSimple(std::vector<std::string> &Result);
+	EvaluationUnit(std::vector<int> TestLabels);
+	double EvaluateResultSimple(std::vector<int> &Result);
 };
 

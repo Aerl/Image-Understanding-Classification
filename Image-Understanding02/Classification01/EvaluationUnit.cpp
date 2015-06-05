@@ -7,22 +7,20 @@ EvaluationUnit::EvaluationUnit()
 }
 
 
-EvaluationUnit::EvaluationUnit(std::vector<Image> TestImages)
+EvaluationUnit::EvaluationUnit(std::vector<int> TestLabels)
 {
-	this->TestImages = TestImages;
+	this->TestLabels = TestLabels;
 }
 
-double EvaluationUnit::EvaluateResultSimple(std::vector<std::string> &Result)
+double EvaluationUnit::EvaluateResultSimple(std::vector<int> &Result)
 {
-	assert(this->TestImages.size() == Result.size());
+	assert(this->TestLabels.size() == Result.size());
 
 	double correctClassifications = 0;
-	for (unsigned int iter = 0; iter < this->TestImages.size(); ++iter)
+	for (unsigned int iter = 0; iter < this->TestLabels.size(); ++iter)
 	{
-		std::string* OriginalClass = &this->TestImages[iter].category;
-		std::string* ResultClass = &Result[iter];
 
-		if (*OriginalClass == *ResultClass)
+		if (this->TestLabels[iter] == Result[iter])
 		{
 			correctClassifications++;
 		}
