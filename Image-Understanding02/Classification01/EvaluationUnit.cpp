@@ -32,21 +32,21 @@ double EvaluationUnit::EvaluateResultSimple(std::vector<int> &Result)
 
 }
 
-void EvaluationUnit::EvaluateResultComplex(std::vector<int> &Result, std::vector<int> &ClassPercentage, std::vector<std::vector<int>> &Statistics)
+void EvaluationUnit::EvaluateResultComplex(std::vector<int> &Result, std::vector<double> &ClassPercentage, std::vector<std::vector<int>> &Statistics)
 {
 	//returns classification statistics: as which class were items from each class classified
 	
 	ClassPercentage.clear();
-	ClassPercentage.reserve(this->NumberOfClasses);
+	ClassPercentage.resize(this->NumberOfClasses);
 	std::fill(ClassPercentage.begin(), ClassPercentage.end(), 0);
 
 	//make sure statistics has size NumberOfClasses*NumberOfClasses and each entry is 0
 	Statistics.clear();
-	Statistics.reserve(this->NumberOfClasses);
+	Statistics.resize(this->NumberOfClasses);
 	for (std::vector<std::vector<int>>::iterator iter = Statistics.begin(); iter != Statistics.end(); ++iter)
 	{
 		iter->clear();
-		iter->reserve(this->NumberOfClasses);
+		iter->resize(this->NumberOfClasses);
 		std::fill(iter->begin(), iter->end(), 0);
 	}
 	
@@ -54,6 +54,7 @@ void EvaluationUnit::EvaluateResultComplex(std::vector<int> &Result, std::vector
 	for (unsigned int iter = 0; iter < this->Labels.size(); ++iter)
 	{
 		std::vector<int>* ClassStats = &Statistics[this->Labels[iter]];
+		assert(this->Labels.size() == Result.size());
 		ClassStats->operator[](Result[iter])++;		
 
 		if (this->Labels[iter] == Result[iter])
@@ -63,9 +64,9 @@ void EvaluationUnit::EvaluateResultComplex(std::vector<int> &Result, std::vector
 	}
 
 	//compute percentages
-	for (std::vector<int>::iterator iter = ClassPercentage.begin(); iter != ClassPercentage.end(); ++iter)
+	for (std::vector<double>::iterator iter = ClassPercentage.begin(); iter != ClassPercentage.end(); ++iter)
 	{
-		*iter = *iter / this->NumberOfSamples;
+		*iter = *iter / double(this->NumberOfSamples);
 	}
 
 }
