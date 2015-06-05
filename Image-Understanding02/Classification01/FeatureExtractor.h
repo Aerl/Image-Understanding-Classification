@@ -14,6 +14,7 @@ class FeatureExtractor
 	{
 		int WindowX;
 		int WindowY;
+		int histSize;
 		//! Default constructor ensuring that all variables are initialized.
 		Parameters();
 	};
@@ -24,5 +25,6 @@ public:
 	~FeatureExtractor();
 	void computeHOGFeatures(std::vector<cv::Mat> &Images, std::vector<std::vector< cv::Mat >> &FeatureVectors);
 	void computeSURFFeatures(std::vector<cv::Mat> &Images, std::vector<std::vector< cv::Mat >> &FeatureVectorsSURF);
+	void computeColorFeatures(std::vector<cv::Mat> &Images, std::vector<std::vector< cv::Mat >> &FeatureVectorsColor);
 };
 
