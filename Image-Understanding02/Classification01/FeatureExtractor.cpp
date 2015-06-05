@@ -61,10 +61,10 @@ void FeatureExtractor::computeHOGFeatures(std::vector<cv::Mat> &Images, std::vec
 
 void FeatureExtractor::computeColorFeatures(std::vector<cv::Mat> &Images, std::vector<std::vector< cv::Mat >> &FeatureVectorsColor)
 {
-	for (std::vector<cv::Mat>::iterator iter = Images.begin(); iter != Images.end(); ++iter)
+	for (int iter = 0; iter < Images.size(); ++iter)
 	{
 		std::vector<cv::Mat> bgr_planes;
-		split(*iter, bgr_planes);
+		split(Images[iter], bgr_planes);
 
 		/// Set the ranges ( for B,G,R) )
 		float range[] = { 0, this->parameters.histSize };
@@ -80,36 +80,40 @@ void FeatureExtractor::computeColorFeatures(std::vector<cv::Mat> &Images, std::v
 		calcHist(&bgr_planes[1], 1, 0, cv::Mat(), g_hist, 1, &this->parameters.histSize, &histRange, uniform, accumulate);
 		calcHist(&bgr_planes[2], 1, 0, cv::Mat(), r_hist, 1, &this->parameters.histSize, &histRange, uniform, accumulate);
 
-		// Draw the histograms for B, G and R
-		int hist_w = 512; int hist_h = 400;
-		int bin_w = cvRound((double)hist_w / this->parameters.histSize);
+		FeatureVectorsColor[iter].push_back(b_hist);
+		FeatureVectorsColor[iter].push_back(g_hist);
+		FeatureVectorsColor[iter].push_back(r_hist);
 
-		cv::Mat histImage(hist_h, hist_w, CV_8UC3, cv::Scalar(0, 0, 0));
+		//// Draw the histograms for B, G and R
+		//int hist_w = 512; int hist_h = 400;
+		//int bin_w = cvRound((double)hist_w / this->parameters.histSize);
 
-		/// Normalize the result to [ 0, histImage.rows ]
-		normalize(b_hist, b_hist, 0, histImage.rows, cv::NORM_MINMAX, -1, cv::Mat());
-		normalize(g_hist, g_hist, 0, histImage.rows, cv::NORM_MINMAX, -1, cv::Mat());
-		normalize(r_hist, r_hist, 0, histImage.rows, cv::NORM_MINMAX, -1, cv::Mat());
+		//cv::Mat histImage(hist_h, hist_w, CV_8UC3, cv::Scalar(0, 0, 0));
 
-		/// Draw for each channel
-		for (int i = 1; i < this->parameters.histSize; i++)
-		{
-			line(histImage, cv::Point(bin_w*(i - 1), hist_h - cvRound(b_hist.at<float>(i - 1))),
-				cv::Point(bin_w*(i), hist_h - cvRound(b_hist.at<float>(i))),
-				cv::Scalar(255, 0, 0), 2, 8, 0);
-			line(histImage, cv::Point(bin_w*(i - 1), hist_h - cvRound(g_hist.at<float>(i - 1))),
-				cv::Point(bin_w*(i), hist_h - cvRound(g_hist.at<float>(i))),
-				cv::Scalar(0, 255, 0), 2, 8, 0);
-			line(histImage, cv::Point(bin_w*(i - 1), hist_h - cvRound(r_hist.at<float>(i - 1))),
-				cv::Point(bin_w*(i), hist_h - cvRound(r_hist.at<float>(i))),
-				cv::Scalar(0, 0, 255), 2, 8, 0);
-		}
+		///// Normalize the result to [ 0, histImage.rows ]
+		//normalize(b_hist, b_hist, 0, histImage.rows, cv::NORM_MINMAX, -1, cv::Mat());
+		//normalize(g_hist, g_hist, 0, histImage.rows, cv::NORM_MINMAX, -1, cv::Mat());
+		//normalize(r_hist, r_hist, 0, histImage.rows, cv::NORM_MINMAX, -1, cv::Mat());
 
-		/// Display
-		cv::namedWindow("calcHist Demo", CV_WINDOW_AUTOSIZE);
-		imshow("calcHist Demo", histImage);
+		///// Draw for each channel
+		//for (int i = 1; i < this->parameters.histSize; i++)
+		//{
+		//	line(histImage, cv::Point(bin_w*(i - 1), hist_h - cvRound(b_hist.at<float>(i - 1))),
+		//		cv::Point(bin_w*(i), hist_h - cvRound(b_hist.at<float>(i))),
+		//		cv::Scalar(255, 0, 0), 2, 8, 0);
+		//	line(histImage, cv::Point(bin_w*(i - 1), hist_h - cvRound(g_hist.at<float>(i - 1))),
+		//		cv::Point(bin_w*(i), hist_h - cvRound(g_hist.at<float>(i))),
+		//		cv::Scalar(0, 255, 0), 2, 8, 0);
+		//	line(histImage, cv::Point(bin_w*(i - 1), hist_h - cvRound(r_hist.at<float>(i - 1))),
+		//		cv::Point(bin_w*(i), hist_h - cvRound(r_hist.at<float>(i))),
+		//		cv::Scalar(0, 0, 255), 2, 8, 0);
+		//}
 
-		cv::waitKey(0);
+		///// Display
+		//cv::namedWindow("calcHist Demo", CV_WINDOW_AUTOSIZE);
+		//imshow("calcHist Demo", histImage);
+
+		//cv::waitKey(0);
 	}
 }
 

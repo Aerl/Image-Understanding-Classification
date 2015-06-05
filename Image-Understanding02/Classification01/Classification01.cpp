@@ -42,7 +42,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	LoadImages.getTrainingData(testImages, testLabels);
 
 	std::vector<std::vector< cv::Mat >> FeatureVectors = std::vector<std::vector< cv::Mat>>(trainingImages.size());
-	GetFeatures.computeHOGFeatures(trainingImages, FeatureVectors);
+	GetFeatures.computeColorFeatures(trainingImages, FeatureVectors);
+	/*GetFeatures.computeHOGFeatures(trainingImages, FeatureVectors);
 
 	std::vector<std::vector< cv::Mat >> SURFTrain = std::vector<std::vector< cv::Mat>>(trainingImages.size());
 	GetFeatures.computeSURFFeatures(trainingImages, SURFTrain);
@@ -50,7 +51,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	GetFeatures.computeSURFFeatures(trainingImages, SURFTest);
 
 	GetClassification.MakeDecisionFLANN(SURFTrain, SURFTest, trainingLabels, classificationResults);
-
+*/
 	
 
 
