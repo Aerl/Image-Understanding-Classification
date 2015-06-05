@@ -69,19 +69,24 @@ void DecisionMaker::MakeDecisionFLANN(std::vector<std::vector< cv::Mat >> &SURFT
 
 	cv::FlannBasedMatcher FLANNmatcher;
 	cv::Mat featureVectorTest, featureVectorTrain;
-	std::vector< cv::DMatch > matches;
-	std::vector< cv::DMatch > good_matches;
-	double max_dist = 0; double min_dist = 100;
+	int classIndex = 0;
 
-	for (std::vector< cv::Mat > feature : SURFTest)
+	for (std::vector< cv::Mat > featureTest : SURFTest)
 	{
-		featureVectorTest = feature[0];
-		for (std::vector< cv::Mat > feature : SURFTrain)
-		{
-			featureVectorTrain = feature[0];
-			FLANNmatcher.match(featureVectorTest, featureVectorTrain, matches);
+		std::cout << "Image Number : " + std::to_string(classIndex) << std::endl;
+		featureVectorTest = featureTest[0];
+		int index = 0;
 
+		std::vector<int> numberGoodMatches(SURFTest.size());
+
+		for (std::vector<cv::Mat> featureTrain : SURFTrain)
+		{
+			featureVectorTrain = featureTrain[0];
+			std::vector<cv::DMatch> matches;
+			FLANNmatcher.match(featureVectorTest, featureVectorTrain, matches);
+			//std::cout << "Matches Size: " + std::to_string(matches.size()) << std::endl;
 			//-- Quick calculation of max and min distances between keypoints
+			double max_dist = 0; double min_dist = 100;
 			for (int i = 0; i < featureVectorTest.rows; i++)
 			{
 				double dist = matches[i].distance;
@@ -93,14 +98,22 @@ void DecisionMaker::MakeDecisionFLANN(std::vector<std::vector< cv::Mat >> &SURFT
 			//-- or a small arbitary value ( 0.02 ) in the event that min_dist is very
 			//-- small)
 			//-- PS.- radiusMatch can also be used here.
+			std::vector<cv::DMatch> goodMatches;
 			for (int i = 0; i < featureVectorTest.rows; i++)
 			{
+				//std::cout << "Matches " + std::to_string(i) + " :" + std::to_string(matches[i].distance) << std::endl;
 				if (matches[i].distance <= cv::max(2 * min_dist, 0.02))
 				{
-					good_matches.push_back(matches[i]);
+					goodMatches.push_back(matches[i]);
 				}
 			}
+
+			numberGoodMatches[index] = goodMatches.size();
+			index++;
 		}
+		int idx = std::distance(numberGoodMatches.begin(), std::max_element(numberGoodMatches.begin(), numberGoodMatches.end()));
+		classificationResults[classIndex] = trainingLabels[idx];
+		classIndex++;
 	}
 }
 

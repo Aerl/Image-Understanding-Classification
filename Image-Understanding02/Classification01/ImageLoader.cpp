@@ -57,7 +57,7 @@ void ImageLoader::LoadImagesFromSubfolders(std::vector<std::string> &subfolders)
 	}
 
 	std::cout << "Minimum Number of Images: " + std::to_string(minNumImg) << std::endl;
-
+	this->SampleSize = minNumImg / 2;
 	//Load images for training and testing from each subfolder
 	for (std::vector<std::string>::iterator iter = subfolders.begin(); iter != subfolders.end(); ++iter)
 	{
@@ -95,6 +95,7 @@ void ImageLoader::LoadImages()
 	}
 	closedir(directory);
 	std::cout << "Minimum Number of Images: " + std::to_string(minNumImg) << std::endl;
+	this->SampleSize = minNumImg / 2;
 	//Load images from all subfolders
 	directory = opendir(this->path.c_str());
 	if (directory != NULL)

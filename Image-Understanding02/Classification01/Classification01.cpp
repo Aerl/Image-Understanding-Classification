@@ -36,23 +36,40 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::vector<cv::Mat> testImages;
 	std::vector<int> testLabels;
 
-	std::vector<int> classificationResults;
-
 	LoadImages.getTrainingData(trainingImages, trainingLabels);
-	LoadImages.getTrainingData(testImages, testLabels);
+	LoadImages.getTestData(testImages, testLabels);
 
 	std::vector<std::vector< cv::Mat >> FeatureVectors = std::vector<std::vector< cv::Mat>>(trainingImages.size());
+	GetFeatures.computeHOGFeatures(trainingImages, FeatureVectors);
 	GetFeatures.computeColorFeatures(trainingImages, FeatureVectors);
-	/*GetFeatures.computeHOGFeatures(trainingImages, FeatureVectors);
 
 	std::vector<std::vector< cv::Mat >> SURFTrain = std::vector<std::vector< cv::Mat>>(trainingImages.size());
 	GetFeatures.computeSURFFeatures(trainingImages, SURFTrain);
-	std::vector<std::vector< cv::Mat >> SURFTest = std::vector<std::vector< cv::Mat>>(trainingImages.size());
-	GetFeatures.computeSURFFeatures(trainingImages, SURFTest);
+	std::vector<std::vector< cv::Mat >> SURFTest = std::vector<std::vector< cv::Mat>>(testImages.size());
+	GetFeatures.computeSURFFeatures(testImages, SURFTest);
 
+	std::vector<int> classificationResults = std::vector<int>(testImages.size());
 	GetClassification.MakeDecisionFLANN(SURFTrain, SURFTest, trainingLabels, classificationResults);
 */
-	
+
+	std::vector<std::string> classNames;
+	LoadImages.getClassNames(classNames);
+	int NumberOfSamples;
+	LoadImages.getSampleSize(NumberOfSamples);
+	int NumberOfClasses = classNames.size();
+
+	EvaluationUnit GetEvaluation(testLabels,NumberOfClasses,NumberOfSamples);
+
+	double percent = GetEvaluation.EvaluateResultSimple(classificationResults);
+	std::cout << "Simple Percentage: " + std::to_string(percent) << std::endl;
+
+	std::vector<double> classPercentage;
+	std::vector<std::vector<int>> statistics;
+	GetEvaluation.EvaluateResultComplex(classificationResults, classPercentage, statistics);
+	for (int i = 0; i < classPercentage.size(); i++)
+	{
+		std::cout << "Complex Percentage Class " + std::to_string(i) + " : " + std::to_string(classPercentage[i]) << std::endl;
+	}
 
 
 	//int num_files = trainingImages.size();
@@ -65,9 +82,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	//for (cv::Mat img_mat : trainingImages)
 	//{
 	//	int ii = 0;
-	//	for (int i = 0; i < img_mat.rows; i++) 
+	//	for (int i = 0; i < img_mat.rows; i++)
 	//	{
-	//		for (int j = 0; j < img_mat.cols; j++) 
+	//		for (int j = 0; j < img_mat.cols; j++)
 	//		{
 	//			training_mat.at<float>(labelIndex,ii++) = img_mat.at<uchar>(i, j);
 	//		}
@@ -83,8 +100,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	//params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
 	////...etc
 
-	//// set up Support Vector Machine for training and classification 
-	//cv::SVM svm; 
+	//// set up Support Vector Machine for training and classification
+	//cv::SVM svm;
 	//svm.train(training_mat, labels, cv::Mat(), cv::Mat(), params);
 
 	//// svm.predict to classify an image
@@ -109,15 +126,15 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	//imshow("Show Images", FeatureVectors[3][0]);
 
-	for (std::vector<cv::Mat>::iterator iter = trainingImages.begin(); iter != trainingImages.end(); ++iter)
-	{
+	//for (std::vector<cv::Mat>::iterator iter = trainingImages.begin(); iter != trainingImages.end(); ++iter)
+	//{
 
-		namedWindow("Show Images", cv::WINDOW_AUTOSIZE);
+	//	namedWindow("Show Images", cv::WINDOW_AUTOSIZE);
 
-		imshow("Show Images", *iter);
-		//std::cout << "  class: " + iter->category << std::endl;
-		cv::waitKey(300);
-	}
+	//	imshow("Show Images", *iter);
+	//	//std::cout << "  class: " + iter->category << std::endl;
+	//	cv::waitKey(300);
+	//}
 
 	/*
 	std::vector<Image> testImages = LoadImages.getTestImages();
