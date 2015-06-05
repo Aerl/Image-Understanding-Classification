@@ -20,6 +20,5 @@ public:
 	DecisionMaker(int xDim, int yDim);
 	~DecisionMaker();
 	void MakeDecisionSVM(std::vector<std::vector< cv::Mat >> &features, std::vector<int> &trainingLabels, std::vector<int> &classificationResults);
-	void MakeDecisionFLANN(std::vector<std::vector< cv::Mat >> &featuresTrain, std::vector<std::vector< cv::Mat >> &featuresTest, std::vector<int> &trainingLabels, std::vector<int> &classificationResults);
 };
 

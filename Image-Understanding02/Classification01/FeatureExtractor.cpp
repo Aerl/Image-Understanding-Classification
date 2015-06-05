@@ -39,6 +39,7 @@ void FeatureExtractor::computeSURFFeatures(std::vector<cv::Mat> &Images, std::ve
 		FeatureVectorsSURF[index].push_back(descriptor.clone());
 		index++;
 	}
+
 }
 
 void FeatureExtractor::computeHOGFeatures(std::vector<cv::Mat> &Images, std::vector<std::vector< cv::Mat >> &FeatureVectors)
@@ -110,6 +111,31 @@ void FeatureExtractor::computeColorFeatures(std::vector<cv::Mat> &Images, std::v
 		imshow("calcHist Demo", histImage);
 
 		cv::waitKey(0);
+	}
+}
+
+void FeatureExtractor::MakeDecisionFLANN(std::vector<std::vector< cv::Mat >> &SURFTrain, std::vector<std::vector< cv::Mat >> &SURFTest, std::vector<int> &trainingLabels, std::vector<int> &classificationResults)
+{
+
+	cv::FlannBasedMatcher FLANNmatcher;
+	cv::Mat featureVectorTest, featureVectorTrain;
+	int classIndex = 0;
+
+	for (std::vector< cv::Mat > featureTest : SURFTest)
+	{
+		std::cout << "Image Number : " + std::to_string(classIndex) << std::endl;
+		featureVectorTest = featureTest[0];
+		int index = 0;
+
+		std::vector<int> numberGoodMatches(SURFTest.size());
+
+		for (std::vector<cv::Mat> featureTrain : SURFTrain)
+		{
+			featureVectorTrain = featureTrain[0];
+			std::vector<cv::DMatch> matches;
+			FLANNmatcher.match(featureVectorTest, featureVectorTrain, matches);
+			//std::cout << "Matches Size: " + std::to_string(matches.size()) << std::endl;	
+		}	
 	}
 }
 

@@ -26,5 +26,6 @@ public:
 	void computeHOGFeatures(std::vector<cv::Mat> &Images, std::vector<std::vector< cv::Mat >> &FeatureVectors);
 	void computeSURFFeatures(std::vector<cv::Mat> &Images, std::vector<std::vector< cv::Mat >> &FeatureVectorsSURF);
 	void computeColorFeatures(std::vector<cv::Mat> &Images, std::vector<std::vector< cv::Mat >> &FeatureVectorsColor);
+	void MakeDecisionFLANN(std::vector<std::vector< cv::Mat >> &featuresTrain, std::vector<std::vector< cv::Mat >> &featuresTest, std::vector<int> &trainingLabels, std::vector<int> &classificationResults);
 };
 
