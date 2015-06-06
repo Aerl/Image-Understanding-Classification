@@ -44,7 +44,7 @@ public:
 	void getTestData(std::vector<cv::Mat> &TestImages, std::vector<int> &TestLabels);
 	void getClassNames(std::vector<std::string> &ClassNames);
 	void getSampleSize(int &SampleSize);
-	//private:
+private:
 	int getNumberOfImages(std::string &Folder);
 	void ScaleAndCropImage(cv::Mat &InputImage, cv::Mat &OutpuImage);
 	void LoadImagesFromFolder(std::string &Folder, int NumImg);

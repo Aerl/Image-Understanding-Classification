@@ -23,46 +23,79 @@ DecisionMaker::~DecisionMaker()
 {
 }
 
-void DecisionMaker::MakeDecisionSVM(std::vector<std::vector< cv::Mat >> &features, std::vector<int> &trainingLabels, std::vector<int> &classificationResults)
+void DecisionMaker::TrainSVM(std::vector<std::vector< cv::Mat >> &FeatureVectors, std::vector<int> &Labels)
 {
+	cv::Mat ReshapedFeatures;
+	cv::Mat ReshapedLabels;
+	ReshapeLabels(Labels, ReshapedLabels);
+	ReshapeFeatures(FeatureVectors, ReshapedFeatures);
 
-	//int num_files = features.size();
-	//int img_area = 150 * 150;
-	//cv::Mat labels(num_files, 1, CV_32FC1);
-	//cv::Mat training_mat(num_files, img_area, CV_32FC1);
-	//int labelIndex = 0;
+	// set up SVM parameters
+	CvSVMParams params;
+	params.svm_type = CvSVM::C_SVC;
+	params.kernel_type = CvSVM::LINEAR;
+	params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
 
-	//// reshape features to one Mat for the SVM
-	//for (std::vector< cv::Mat > feature : features)
-	//{
-	//	int ii = 0;
-	//	for (int i = 0; i < feature.rows; i++)
-	//	{
-	//		for (int j = 0; j < feature.cols; j++)
-	//		{
-	//			training_mat.at<float>(labelIndex, ii++) = feature.at<uchar>(i, j);
-	//		}
-	//	}
-	//	labels.at<float>(labelIndex) = trainingLabels.at(labelIndex);
-	//	labelIndex++;
-	//}
-
-	//// set up SVM parameters
-	//CvSVMParams params;
-	//params.svm_type = CvSVM::C_SVC;
-	//params.kernel_type = CvSVM::LINEAR;
-	//params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
-	////...etc
-
-	//// set up Support Vector Machine for training and classification 
-	//cv::SVM svm;
-	//svm.train(training_mat, labels, cv::Mat(), cv::Mat(), params);
-
-	//// svm.predict to classify an image
-	//cv::Mat test2 = training_mat.row(18);
-
-	//int p = svm.predict(test2);
+	// set up Support Vector Machine for training and classification 
+	this->svm.train(ReshapedFeatures, ReshapedLabels, cv::Mat(), cv::Mat(), params);
 }
+
+void DecisionMaker::PredictSVM(std::vector<std::vector< cv::Mat >> &FeatureVectors, std::vector<int> &ClassificationResults)
+{
+	cv::Mat ReshapedFeatures;
+	ReshapeFeatures(FeatureVectors, ReshapedFeatures);
+	cv::Mat Results;
+	this->svm.predict(ReshapedFeatures, Results);
+	ReshapeLabels(Results, ClassificationResults);
+	std::cout << ClassificationResults.size() << std::endl;
+}
+
+void DecisionMaker::ReshapeLabels(std::vector<int> &Labels, cv::Mat &ReshapedLabels)
+{
+	ReshapedLabels = cv::Mat(Labels.size(), 1, CV_32FC1);
+	for (int iter = 0; iter < int(Labels.size()); ++iter)
+	{
+		ReshapedLabels.at<float>(iter) = Labels.at(iter);
+	}
+}
+
+void DecisionMaker::ReshapeLabels(cv::Mat &Labels, std::vector<int> &ReshapedLabels)
+{
+	ReshapedLabels.clear();
+
+	for (int row = 0; row < Labels.rows; ++row)
+	{
+		for (int col = 0; col < Labels.cols; ++col)
+		{
+			ReshapedLabels.push_back(int(Labels.at<float>(row, col)));
+			//std::cout << Labels.at<float>(row, col) << std::endl;
+		}
+	}
+}
+
+void DecisionMaker::ReshapeFeatures(std::vector<std::vector< cv::Mat >> &FeatureVectors, cv::Mat &ReshapedFeatures)
+{
+	ReshapedFeatures = cv::Mat(FeatureVectors.size(), this->parameters.ROIx*this->parameters.ROIy, CV_32FC1);
+	int LabelIndex = 0;
+
+	// reshape features to one Mat for the SVM
+	for (int iterClasses = 0; iterClasses < int(FeatureVectors.size()); ++iterClasses)
+	{
+		std::vector<cv::Mat> classFeatures = FeatureVectors[iterClasses];
+		for (int iterFeatures = 0; iterFeatures < int(classFeatures.size()); ++iterFeatures)
+		{
+			cv::Mat feature = classFeatures[iterFeatures];
+			for (int i = 0; i < feature.rows; i++)
+			{
+				for (int j = 0; j < feature.cols; j++)
+				{
+					ReshapedFeatures.at<float>(LabelIndex, iterFeatures++) = feature.at<uchar>(i, j);
+				}
+			}
+		}
+	}
+}
+
 
 void DecisionMaker::MakeDecisionFLANN(std::vector<std::vector< cv::Mat >> &SURFTrain, std::vector<std::vector< cv::Mat >> &SURFTest, std::vector<int> &trainingLabels, std::vector<int> &classificationResults)
 {
