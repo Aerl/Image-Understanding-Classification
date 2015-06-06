@@ -22,10 +22,15 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	std::vector<std::string> folders;
 	folders.push_back("accordion");
-	folders.push_back("sunflower");
-	folders.push_back("wrench");
-	folders.push_back("helicopter");
-	folders.push_back("platypus");
+	//folders.push_back("airplanes");
+	folders.push_back("anchor");
+	//folders.push_back("ant");
+	//folders.push_back("barrel");
+	//folders.push_back("bass");
+	//folders.push_back("beaver");
+	//folders.push_back("binocular");
+	//folders.push_back("bonsai");
+
 
 
 	LoadImages.LoadImagesFromSubfolders(folders);
@@ -43,33 +48,42 @@ int _tmain(int argc, _TCHAR* argv[])
 	GetFeatures.computeHOGFeatures(trainingImages, FeatureVectors);
 	GetFeatures.computeColorFeatures(trainingImages, FeatureVectors);
 
-	std::vector<std::vector< cv::Mat >> SURFTrain = std::vector<std::vector< cv::Mat>>(trainingImages.size());
-	GetFeatures.computeSURFFeatures(trainingImages, SURFTrain);
-	std::vector<std::vector< cv::Mat >> SURFTest = std::vector<std::vector< cv::Mat>>(testImages.size());
-	GetFeatures.computeSURFFeatures(testImages, SURFTest);
-
-	std::vector<int> classificationResults = std::vector<int>(testImages.size());
-	GetClassification.MakeDecisionFLANN(SURFTrain, SURFTest, trainingLabels, classificationResults);
-*/
-
 	std::vector<std::string> classNames;
 	LoadImages.getClassNames(classNames);
-	int NumberOfSamples;
-	LoadImages.getSampleSize(NumberOfSamples);
 	int NumberOfClasses = classNames.size();
 
-	EvaluationUnit GetEvaluation(testLabels,NumberOfClasses,NumberOfSamples);
+	std::vector<cv::Mat> FeatureVectorsSURFUnclustered(NumberOfClasses);
+	GetFeatures.computeSURFFeatures(trainingImages, trainingLabels, FeatureVectorsSURFUnclustered);
 
-	double percent = GetEvaluation.EvaluateResultSimple(classificationResults);
-	std::cout << "Simple Percentage: " + std::to_string(percent) << std::endl;
+	cv::Mat dictionary;
+	std::vector<cv::Mat> clusteredFeatures(testImages.size());
+	GetFeatures.getBagOfWords(testImages, FeatureVectorsSURFUnclustered, dictionary, clusteredFeatures);
 
-	std::vector<double> classPercentage;
-	std::vector<std::vector<int>> statistics;
-	GetEvaluation.EvaluateResultComplex(classificationResults, classPercentage, statistics);
-	for (int i = 0; i < classPercentage.size(); i++)
-	{
-		std::cout << "Complex Percentage Class " + std::to_string(i) + " : " + std::to_string(classPercentage[i]) << std::endl;
-	}
+	//std::vector<int> classificationResults = std::vector<int>(testImages.size());
+	//GetFeatures.MakeDecisionFLANN(SURFTrain, SURFTest, trainingLabels, classificationResults);
+	//GetClassification.MakeDecisionFLANN(SURFTrain, SURFTest, trainingLabels, classificationResults);
+
+	return 0;
+
+	//std::vector<std::string> classNames;
+	//LoadImages.getClassNames(classNames);
+	//int NumberOfSamples;
+	//LoadImages.getSampleSize(NumberOfSamples);
+	//int NumberOfClasses = classNames.size();
+
+	//EvaluationUnit GetEvaluation(testLabels,NumberOfClasses,NumberOfSamples);
+
+	//double percent = GetEvaluation.EvaluateResultSimple(classificationResults);
+	//std::cout << "Simple Percentage: " + std::to_string(percent) << std::endl;
+
+	//std::vector<double> classPercentage;
+	//std::vector<std::vector<int>> statistics;
+	//GetEvaluation.EvaluateResultComplex(classificationResults, classPercentage, statistics);
+	//for (int i = 0; i < classPercentage.size(); i++)
+	//{
+	//	std::cout << "Complex Percentage Class " + std::to_string(i) + " : " + std::to_string(classPercentage[i]) << std::endl;
+	//}
+
 
 
 	//int num_files = trainingImages.size();
@@ -149,6 +163,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		cv::waitKey(300);
 	}*/
 
-	return 0;
+
 }
 

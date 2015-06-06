@@ -73,6 +73,7 @@ void DecisionMaker::ReshapeLabels(cv::Mat &Labels, std::vector<int> &ReshapedLab
 	}
 }
 
+
 void DecisionMaker::ReshapeFeatures(std::vector<std::vector< cv::Mat >> &FeatureVectors, cv::Mat &ReshapedFeatures)
 {
 	ReshapedFeatures = cv::Mat(FeatureVectors.size(), this->parameters.ROIx*this->parameters.ROIy, CV_32FC1);
@@ -99,56 +100,6 @@ void DecisionMaker::ReshapeFeatures(std::vector<std::vector< cv::Mat >> &Feature
 
 void DecisionMaker::MakeDecisionFLANN(std::vector<std::vector< cv::Mat >> &SURFTrain, std::vector<std::vector< cv::Mat >> &SURFTest, std::vector<int> &trainingLabels, std::vector<int> &classificationResults)
 {
-
-	cv::FlannBasedMatcher FLANNmatcher;
-	cv::Mat featureVectorTest, featureVectorTrain;
-	int classIndex = 0;
-
-	for (std::vector< cv::Mat > featureTest : SURFTest)
-	{
-		std::cout << "Image Number : " + std::to_string(classIndex) << std::endl;
-		featureVectorTest = featureTest[0];
-		int index = 0;
-
-		std::vector<int> numberGoodMatches(SURFTest.size());
-
-		for (std::vector<cv::Mat> featureTrain : SURFTrain)
-		{
-			featureVectorTrain = featureTrain[0];
-			std::vector<cv::DMatch> matches;
-			FLANNmatcher.match(featureVectorTest, featureVectorTrain, matches);
-			//std::cout << "Matches Size: " + std::to_string(matches.size()) << std::endl;
-			//-- Quick calculation of max and min distances between keypoints
-			double max_dist = 0; double min_dist = 100;
-			for (int i = 0; i < featureVectorTest.rows; i++)
-			{
-				double dist = matches[i].distance;
-				if (dist < min_dist) min_dist = dist;
-				if (dist > max_dist) max_dist = dist;
-			}
-
-			//-- Draw only "good" matches (i.e. whose distance is less than 2*min_dist,
-			//-- or a small arbitary value ( 0.02 ) in the event that min_dist is very
-			//-- small)
-			//-- PS.- radiusMatch can also be used here.
-			std::vector<cv::DMatch> goodMatches;
-			for (int i = 0; i < featureVectorTest.rows; i++)
-			{
-				//std::cout << "Matches " + std::to_string(i) + " :" + std::to_string(matches[i].distance) << std::endl;
-				if (matches[i].distance <= cv::max(2 * min_dist, 0.02))
-				{
-					goodMatches.push_back(matches[i]);
-				}
-			}
-
-			numberGoodMatches[index] = goodMatches.size();
-			index++;
-		}
-		int idx = std::distance(numberGoodMatches.begin(), std::max_element(numberGoodMatches.begin(), numberGoodMatches.end()));
-		classificationResults[classIndex] = trainingLabels[idx];
-		classIndex++;
-	}
-}
 
 //// define the parameters for training the random forest (trees)
 //
