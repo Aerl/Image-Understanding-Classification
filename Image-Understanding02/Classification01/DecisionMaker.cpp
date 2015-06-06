@@ -83,17 +83,19 @@ void DecisionMaker::ReshapeFeatures(std::vector<std::vector< cv::Mat >> &Feature
 	int LabelIndex = 0;
 
 	//reshape features to one Mat for the SVM
-	for (int iterClasses = 0; iterClasses < int(FeatureVectors.size()); ++iterClasses)
+	for (unsigned int iterClasses = 0; iterClasses < FeatureVectors.size(); ++iterClasses)
 	{
-		std::vector<cv::Mat> classFeatures = FeatureVectors[iterClasses];
-		for (int iterFeatures = 0; iterFeatures < int(classFeatures.size()); iterFeatures)
+		std::vector<cv::Mat>* classFeatures = &FeatureVectors[iterClasses];
+		for (unsigned int iterFeatures = 0; iterFeatures < classFeatures->size(); iterFeatures)
 		{
-			cv::Mat feature = classFeatures[iterFeatures];
-			for (int i = 0; i < feature.rows; i++)
+			cv::Mat* feature = &classFeatures->operator[](iterFeatures);
+			int Index = 0;
+			
+			for (int i = 0; i < feature->rows; i++)
 			{
-				for (int j = 0; j < feature.cols; j++)
+				for (int j = 0; j < feature->cols; j++)
 				{
-					ReshapedFeatures.at<float>(LabelIndex, iterFeatures++) = feature.at<uchar>(i,j);
+					ReshapedFeatures.at<float>(LabelIndex, Index++) = feature->at<int>(i, j);
 				}
 			}
 		}
