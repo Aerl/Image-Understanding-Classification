@@ -33,11 +33,8 @@ void DecisionMaker::TrainSVM(std::vector<std::vector< cv::Mat >> &FeatureVectors
 	// set up SVM parameters
 	CvSVMParams params;
 	params.svm_type = CvSVM::C_SVC;
-	params.C = 0.5;
-	params.gamma = 0.5;
-	params.nu = 0.5;
 	params.kernel_type = CvSVM::LINEAR;
-	params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 1000, 1e-6);
+	params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 500, 1e-6);
 
 	// set up Support Vector Machine for training and classification 
 	this->svm.train(ReshapedFeatures, ReshapedLabels, cv::Mat(), cv::Mat(), params);
@@ -81,25 +78,36 @@ void DecisionMaker::ReshapeLabels(cv::Mat &Labels, std::vector<int> &ReshapedLab
 
 void DecisionMaker::ReshapeFeatures(std::vector<std::vector< cv::Mat >> &FeatureVectors, cv::Mat &ReshapedFeatures)
 {
-	int Dim = FeatureVectors[0][0].rows*FeatureVectors[0][0].cols;
-	ReshapedFeatures = cv::Mat(FeatureVectors.size(), Dim, CV_32FC1);
-	int LabelIndex = 0;
+	int num_files = FeatureVectors.size();
+	int Dim = 0;
 
-	//reshape features to one Mat for the SVM
-	for (int iterClasses = 0; iterClasses < int(FeatureVectors.size()); ++iterClasses)
+	for (std::vector<cv::Mat>::iterator iter = FeatureVectors[0].begin(); iter != FeatureVectors[0].end(); ++iter)
 	{
-		std::vector<cv::Mat> classFeatures = FeatureVectors[iterClasses];
-		for (int iterFeatures = 0; iterFeatures < int(classFeatures.size()); iterFeatures)
+		Dim += iter->rows*iter->cols;
+	}
+
+	//std::cout << "Dim: " + std::to_string(Dim) << std::endl;
+
+	ReshapedFeatures = cv::Mat(num_files, Dim, CV_32FC1);
+
+	// reshape Images to one Mat for the SVM
+	int labelIndex = 0;
+	for (std::vector<cv::Mat> fvector : FeatureVectors)
+	{
+		int ii = 0;
+
+		for (cv::Mat img_mat : fvector)
 		{
-			cv::Mat feature = classFeatures[iterFeatures];
-			for (int i = 0; i < feature.rows; i++)
+
+			for (int i = 0; i < img_mat.rows; i++)
 			{
-				for (int j = 0; j < feature.cols; j++)
+				for (int j = 0; j < img_mat.cols; j++)
 				{
-					ReshapedFeatures.at<float>(LabelIndex, iterFeatures++) = feature.at<int>(i, j);
+					ReshapedFeatures.at<float>(labelIndex, ii++) = img_mat.at<int>(i, j);
 				}
 			}
 		}
+		labelIndex++;
 	}
 }
 

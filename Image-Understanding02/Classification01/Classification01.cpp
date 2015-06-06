@@ -25,14 +25,16 @@ int _tmain(int argc, _TCHAR* argv[])
 	//folders.push_back("airplanes");
 	folders.push_back("anchor");
 	//folders.push_back("ant");
-	//folders.push_back("barrel");
-	//folders.push_back("bass");
+	folders.push_back("barrel");
+	folders.push_back("bass");
 	//folders.push_back("beaver");
-	//folders.push_back("binocular");
-	//folders.push_back("bonsai");
+	folders.push_back("binocular");
+	folders.push_back("bonsai");
 
-	LoadImages.LoadImagesFromSubfolders(folders);
-	//LoadImages.LoadImages();
+
+
+	//LoadImages.LoadImagesFromSubfolders(folders);
+	LoadImages.LoadImages();
 	std::vector<cv::Mat> trainingImages;
 	std::vector<int> trainingLabels;
 
@@ -46,120 +48,56 @@ int _tmain(int argc, _TCHAR* argv[])
 	GetFeatures.computeHOGFeatures(trainingImages, FeatureVectors);
 	GetFeatures.computeColorFeatures(trainingImages, FeatureVectors);
 
-	std::vector<std::string> classNames;
-	LoadImages.getClassNames(classNames);
-	int NumberOfClasses = classNames.size();
-
-	std::vector<cv::Mat> FeatureVectorsSURFUnclustered(NumberOfClasses);
-	GetFeatures.computeSURFFeatures(trainingImages, trainingLabels, FeatureVectorsSURFUnclustered);
-
-	cv::Mat dictionary;
-	std::vector<cv::Mat> clusteredFeatures(testImages.size());
-	GetFeatures.getBagOfWords(testImages, FeatureVectorsSURFUnclustered, dictionary, clusteredFeatures);
-
-	//std::vector<int> classificationResults = std::vector<int>(testImages.size());
-	//GetFeatures.MakeDecisionFLANN(SURFTrain, SURFTest, trainingLabels, classificationResults);
-	//GetClassification.MakeDecisionFLANN(SURFTrain, SURFTest, trainingLabels, classificationResults);
-
-	return 0;
+	//GetClassification.TrainSVM(FeatureVectors, trainingLabels);
 
 	//std::vector<std::string> classNames;
 	//LoadImages.getClassNames(classNames);
-	//int NumberOfSamples;
-	//LoadImages.getSampleSize(NumberOfSamples);
 	//int NumberOfClasses = classNames.size();
 
-	//EvaluationUnit GetEvaluation(testLabels,NumberOfClasses,NumberOfSamples);
 
-	//double percent = GetEvaluation.EvaluateResultSimple(classificationResults);
-	//std::cout << "Simple Percentage: " + std::to_string(percent) << std::endl;
+	//std::vector<int> classificationResults = std::vector<int>(testImages.size());
+	
 
-	//std::vector<double> classPercentage;
-	//std::vector<std::vector<int>> statistics;
-	//GetEvaluation.EvaluateResultComplex(classificationResults, classPercentage, statistics);
-	//for (int i = 0; i < classPercentage.size(); i++)
-	//{
-	//	std::cout << "Complex Percentage Class " + std::to_string(i) + " : " + std::to_string(classPercentage[i]) << std::endl;
-	//}
+	GetClassification.TrainSVM(FeatureVectors, trainingLabels);
+	// svm.predict to classify an image
+	
 
+	FeatureVectors = std::vector<std::vector< cv::Mat>>(testImages.size());
 
+	GetFeatures.computeHOGFeatures(testImages, FeatureVectors);
+	GetFeatures.computeColorFeatures(testImages, FeatureVectors);
 
-	//int num_files = trainingImages.size();
-	//int img_area = 150*150;
-	//cv::Mat labels(num_files, 1, CV_32FC1);
-	//cv::Mat training_mat(num_files, img_area, CV_32FC1);
-	//int labelIndex = 0;
+	std::cout << "FeatureVectors: " + std::to_string(FeatureVectors.size()) << std::endl;
 
-	//// reshape Images to one Mat for the SVM
-	//for (cv::Mat img_mat : trainingImages)
-	//{
-	//	int ii = 0;
-	//	for (int i = 0; i < img_mat.rows; i++)
-	//	{
-	//		for (int j = 0; j < img_mat.cols; j++)
-	//		{
-	//			training_mat.at<float>(labelIndex,ii++) = img_mat.at<uchar>(i, j);
-	//		}
-	//	}
-	//	labels.at<float>(labelIndex) = trainingLabels.at(labelIndex);
-	//	labelIndex++;
-	//}
-	//
-	//// set up SVM parameters
-	//CvSVMParams params;
-	//params.svm_type = CvSVM::C_SVC;
-	//params.kernel_type = CvSVM::LINEAR;
-	//params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
-	////...etc
+	std::vector<int> Results;
+	GetClassification.PredictSVM(FeatureVectors, Results);
 
-	//// set up Support Vector Machine for training and classification
-	//cv::SVM svm;
-	//svm.train(training_mat, labels, cv::Mat(), cv::Mat(), params);
-
-	//// svm.predict to classify an image
-	//std::vector<cv::Mat> testData;
-	//std::vector<int> testLabels;
-	//LoadImages.getTrainingData(testData, testLabels);
-
-	//cv::Mat test2 = training_mat.row(18);
-
-	//int p = svm.predict(test2);
+	std::cout << "Results: " + std::to_string(Results.size()) << std::endl;
 
 
+	std::vector<std::string> classNames;
+	LoadImages.getClassNames(classNames);
+	int NumberOfSamples;
+	LoadImages.getSampleSize(NumberOfSamples);
+	int NumberOfClasses = classNames.size();
 
+	EvaluationUnit GetEvaluation(testLabels, NumberOfClasses, NumberOfSamples);
 
+	double percent = GetEvaluation.EvaluateResultSimple(Results);
+	std::cout << "Simple Percentage: " + std::to_string(percent) << std::endl;
 
-	//cv::Mat Feature = FeatureVectors[3][0];
-
-	//std::cout << "  Feature: " + std::to_string(FeatureVectors.size()) << std::endl;
-
-
-	//namedWindow("Show Images", cv::WINDOW_AUTOSIZE);
-
-	//imshow("Show Images", FeatureVectors[3][0]);
-
-	//for (std::vector<cv::Mat>::iterator iter = trainingImages.begin(); iter != trainingImages.end(); ++iter)
-	//{
-
-	//	namedWindow("Show Images", cv::WINDOW_AUTOSIZE);
-
-	//	imshow("Show Images", *iter);
-	//	//std::cout << "  class: " + iter->category << std::endl;
-	//	cv::waitKey(300);
-	//}
-
-	/*
-	std::vector<Image> testImages = LoadImages.getTestImages();
-
-	for (std::vector<Image>::iterator iter = testImages.begin(); iter != testImages.end(); ++iter)
+	std::vector<double> classPercentage;
+	std::vector<std::vector<int>> statistics;
+	GetEvaluation.EvaluateResultComplex(Results, classPercentage, statistics);
+	for (int i = 0; i < classPercentage.size(); i++)
 	{
+		std::cout << "Complex Percentage Class " + std::to_string(i) + " : " + std::to_string(classPercentage[i]) << std::endl;
+	}
 
-		namedWindow("Show Images", cv::WINDOW_AUTOSIZE);
 
-		imshow("Show Images", iter->data);
-		std::cout << "  class: " + iter->category << std::endl;
-		cv::waitKey(300);
-	}*/
+
+	return 0;
+
 
 
 }
