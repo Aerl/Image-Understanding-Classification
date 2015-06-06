@@ -33,8 +33,11 @@ void DecisionMaker::TrainSVM(std::vector<std::vector< cv::Mat >> &FeatureVectors
 	// set up SVM parameters
 	CvSVMParams params;
 	params.svm_type = CvSVM::C_SVC;
+	params.C = 0.5;
+	params.gamma = 0.5;
+	params.nu = 0.5;
 	params.kernel_type = CvSVM::LINEAR;
-	params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
+	params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 1000, 1e-6);
 
 	// set up Support Vector Machine for training and classification 
 	this->svm.train(ReshapedFeatures, ReshapedLabels, cv::Mat(), cv::Mat(), params);
