@@ -115,8 +115,15 @@ void FeatureExtractor::computeHOGFeatures(std::vector<cv::Mat> &Images, std::vec
 		cv::cvtColor(Images[iter], gray, cv::COLOR_BGR2GRAY);
 		
 		hog.compute(gray, descriptors, cv::Size(hog.winSize.width/2, hog.winSize.height/2), cv::Size(0, 0), location);
-		std::cout << "  Feature Size: " + std::to_string(descriptors.size()) << std::endl;
-		FeatureVectors[iter].push_back(cv::Mat(descriptors).clone());
+		//std::cout << "  Feature Size: " + std::to_string(descriptors.size()) << std::endl;
+		cv::Mat help = cv::Mat(descriptors).clone();
+		FeatureVectors[iter].push_back(help);
+
+		/// Display
+		//cv::namedWindow("calcHist Demo", CV_WINDOW_AUTOSIZE);
+		//imshow("calcHist Demo", help);
+
+		//cv::waitKey(0);
 	}
 }
 
@@ -140,6 +147,10 @@ void FeatureExtractor::computeColorFeatures(std::vector<cv::Mat> &Images, std::v
 		calcHist(&bgr_planes[0], 1, 0, cv::Mat(), b_hist, 1, &this->parameters.histSize, &histRange, uniform, accumulate);
 		calcHist(&bgr_planes[1], 1, 0, cv::Mat(), g_hist, 1, &this->parameters.histSize, &histRange, uniform, accumulate);
 		calcHist(&bgr_planes[2], 1, 0, cv::Mat(), r_hist, 1, &this->parameters.histSize, &histRange, uniform, accumulate);
+		
+		//std::cout << "  b_hist: " + std::to_string(b_hist.rows) + " / " + std::to_string(b_hist.cols) << std::endl;
+		//std::cout << "  g_hist: " + std::to_string(g_hist.rows) + " / " + std::to_string(g_hist.cols) << std::endl;
+		//std::cout << "  r_hist: " + std::to_string(r_hist.rows) + " / " + std::to_string(r_hist.cols) << std::endl;
 
 		FeatureVectorsColor[iter].push_back(b_hist);
 		FeatureVectorsColor[iter].push_back(g_hist);
