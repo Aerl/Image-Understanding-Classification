@@ -64,7 +64,7 @@ void FeatureExtractor::getBagOfWords(std::vector<cv::Mat> &TestImages, std::vect
 	//Create the BoW (or BoF) trainer
 	cv::BOWKMeansTrainer bowTrainer(dictionarySize, tc, retries, flags);
 
-	std::vector<cv::Mat> clusteredFeaturesUnsorted(TestImages.size());
+	std::vector<cv::Mat> clusteredFeaturesUnsorted(9);
 
 	//cluster the feature vectors
 	for (int i = 0; i < int(FeatureVectorsSURFUnclustered.size()); i++)
@@ -101,7 +101,7 @@ void FeatureExtractor::getBagOfWords(std::vector<cv::Mat> &TestImages, std::vect
 		cv::Mat bowDescriptor;
 		//extract BoW (or BoF) descriptor from given image
 		bowDE.compute(TestImages[i], keypoints, bowDescriptor);
-		clusteredFeaturesUnsorted[i].push_back(bowDescriptor);
+		clusteredFeaturesUnsorted[trainingLabels[i]].push_back(bowDescriptor);
 		//}
 	}
 
