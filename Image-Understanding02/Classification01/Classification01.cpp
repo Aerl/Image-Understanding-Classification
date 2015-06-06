@@ -31,8 +31,6 @@ int _tmain(int argc, _TCHAR* argv[])
 	//folders.push_back("binocular");
 	//folders.push_back("bonsai");
 
-
-
 	LoadImages.LoadImagesFromSubfolders(folders);
 	//LoadImages.LoadImages();
 	std::vector<cv::Mat> trainingImages;
