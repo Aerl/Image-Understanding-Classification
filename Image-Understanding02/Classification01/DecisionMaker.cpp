@@ -104,6 +104,7 @@ void DecisionMaker::ReshapeFeatures(std::vector<std::vector< cv::Mat >> &Feature
 				for (int j = 0; j < img_mat.cols; j++)
 				{
 					ReshapedFeatures.at<float>(labelIndex, ii++) = img_mat.at<int>(i, j);
+
 				}
 			}
 		}

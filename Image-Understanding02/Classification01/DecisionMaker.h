@@ -22,8 +22,9 @@ public:
 	~DecisionMaker();
 	void TrainSVM(std::vector<std::vector< cv::Mat >> &FeatureVectors, std::vector<int> &trainingLabels);
 	void PredictSVM(std::vector<std::vector< cv::Mat >> &FeatureVectors, std::vector<int> &ClassificationResults);
-	void ReshapeLabels(std::vector<int> &Labels, cv::Mat &ReshapedLabels);
 	void ReshapeLabels(cv::Mat &Labels, std::vector<int> &ReshapedLabels);
+private:
+	void ReshapeLabels(std::vector<int> &Labels, cv::Mat &ReshapedLabels);
 	void ReshapeFeatures(std::vector<std::vector< cv::Mat >> &FeatureVectors, cv::Mat &ReshapedFeatures);
 
 	};
