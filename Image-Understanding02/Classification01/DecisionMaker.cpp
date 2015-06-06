@@ -56,7 +56,7 @@ void DecisionMaker::ReshapeLabels(std::vector<int> &Labels, cv::Mat &ReshapedLab
 	for (int iter = 0; iter < int(Labels.size()); ++iter)
 	{
 		ReshapedLabels.at<float>(iter) = Labels.at(iter);
-		std::cout << ReshapedLabels.at<float>(iter) << std::endl;
+		//std::cout << ReshapedLabels.at<float>(iter) << std::endl;
 	}
 
 }
@@ -78,7 +78,8 @@ void DecisionMaker::ReshapeLabels(cv::Mat &Labels, std::vector<int> &ReshapedLab
 
 void DecisionMaker::ReshapeFeatures(std::vector<std::vector< cv::Mat >> &FeatureVectors, cv::Mat &ReshapedFeatures)
 {
-	ReshapedFeatures = cv::Mat(FeatureVectors.size(), this->parameters.ROIx*this->parameters.ROIy, CV_32FC1);
+	int Dim = FeatureVectors[0][0].rows*FeatureVectors[0][0].cols;
+	ReshapedFeatures = cv::Mat(FeatureVectors.size(), Dim, CV_32FC1);
 	int LabelIndex = 0;
 
 	//reshape features to one Mat for the SVM
