@@ -43,8 +43,20 @@ void ImageLoader::getSampleSize(int &SampleSize)
 	SampleSize = this->SampleSize;
 }
 
+void ImageLoader::clear()
+{
+	this->ClassNames.clear();
+	this->SampleSize = 0;
+	this->TestImages.clear();
+	this->TestLabels.clear();
+	this->TrainingImages.clear();
+	this->TrainingLabels.clear();
+}
+
 void ImageLoader::LoadImagesFromSubfolders(std::vector<std::string> &subfolders)
 {
+	std::cout << "Loading..." << std::endl;
+	this->clear();
 	int minNumImg = INT_MAX;
 
 	//Find smallest number of images in folders
@@ -63,11 +75,14 @@ void ImageLoader::LoadImagesFromSubfolders(std::vector<std::string> &subfolders)
 	{
 		this->LoadImagesFromFolder(*iter, minNumImg);
 	}
+	std::cout << "  finished" << std::endl;
 }
 
 
 void ImageLoader::LoadImages()
 {
+	std::cout << "Loading..." << std::endl;
+	this->clear();
 	//Find smallest number of images in folders
 	int minNumImg = INT_MAX;
 	DIR* directory = opendir(this->path.c_str());
@@ -94,7 +109,7 @@ void ImageLoader::LoadImages()
 		}
 	}
 	closedir(directory);
-	std::cout << "Minimum Number of Images: " + std::to_string(minNumImg) << std::endl;
+	//std::cout << "Minimum Number of Images: " + std::to_string(minNumImg) << std::endl;
 	this->SampleSize = minNumImg / 2;
 	//Load images from all subfolders
 	directory = opendir(this->path.c_str());
@@ -116,6 +131,7 @@ void ImageLoader::LoadImages()
 		}
 	}
 	closedir(directory);
+	std::cout << "  finished" << std::endl;
 }
 
 
@@ -153,7 +169,7 @@ void ImageLoader::LoadImagesFromFolder(std::string &folder, int NumImg)
 {
 	//Load images from the given directory
 	//Random selection of restricted number of entries.
-	std::cout << "Folder: " + folder << std::endl;
+	//std::cout << "Folder: " + folder << std::endl;
 	std::vector<cv::Mat> CurrentFolder;
 	std::string directoryName = this->path + "/" + folder;
 	DIR* directory = opendir(directoryName.c_str());
@@ -190,7 +206,7 @@ void ImageLoader::LoadImagesFromFolder(std::string &folder, int NumImg)
 		}
 
 		SelectAndCopyImages(CurrentFolder, NumImg, folder);
-		std::cout << "   Fully Loaded" << std::endl;
+		//std::cout << "   Fully Loaded" << std::endl;
 	}
 	closedir(directory);
 }
