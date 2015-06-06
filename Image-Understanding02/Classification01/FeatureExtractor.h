@@ -24,9 +24,9 @@ public:
 	//FeatureExtractor(std::vector<Image> Images);
 	~FeatureExtractor();
 	void computeHOGFeatures(std::vector<cv::Mat> &Images, std::vector<std::vector< cv::Mat >> &FeatureVectors);
-	void computeSURFFeatures(std::vector<cv::Mat> &TrainImages, cv::Mat &FeatureVectorsSURFUnclustered);
+	void computeSURFFeatures(std::vector<cv::Mat> &TrainImages, std::vector<int> trainingLabels, std::vector<cv::Mat> &FeatureVectorsSURFUnclustered);
 	void computeColorFeatures(std::vector<cv::Mat> &Images, std::vector<std::vector< cv::Mat >> &FeatureVectorsColor);
 	void MakeDecisionFLANN(std::vector<std::vector< cv::Mat >> &featuresTrain, std::vector<std::vector< cv::Mat >> &featuresTest, std::vector<int> &trainingLabels, std::vector<int> &classificationResults);
-	void getBagOfWords(std::vector<cv::Mat> &TestImages, cv::Mat &FeatureVectorsSURFUnclustered, cv::Mat &dictionary, cv::Mat &clusteredFeatures);
+	void getBagOfWords(std::vector<cv::Mat> &TestImages, std::vector<cv::Mat> &FeatureVectorsSURFUnclustered, cv::Mat &dictionary, std::vector<cv::Mat> &clusteredFeatures);
 };
 

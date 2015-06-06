@@ -19,7 +19,7 @@ FeatureExtractor::~FeatureExtractor()
 
 }
 
-void FeatureExtractor::computeSURFFeatures(std::vector<cv::Mat> &TrainImages, cv::Mat &FeatureVectorsSURFUnclustered)
+void FeatureExtractor::computeSURFFeatures(std::vector<cv::Mat> &TrainImages, std::vector<int> trainingLabels, std::vector<cv::Mat> &FeatureVectorsSURFUnclustered)
 {
 	int minHessian = 400;
 
@@ -29,15 +29,16 @@ void FeatureExtractor::computeSURFFeatures(std::vector<cv::Mat> &TrainImages, cv
 	std::vector<cv::KeyPoint> keypoints;
 	cv::Mat descriptor;
 
-	for (cv::Mat image : TrainImages)
+	for (int i = 0; i < TrainImages.size(); i++)
 	{
-		detector.detect(image, keypoints);
-		detector.compute(image, keypoints, descriptor);
-		FeatureVectorsSURFUnclustered.push_back(descriptor);
+		detector.detect(TrainImages[i], keypoints);
+		detector.compute(TrainImages[i], keypoints, descriptor);
+		int pushIndex = trainingLabels[i];
+		FeatureVectorsSURFUnclustered[pushIndex].push_back(descriptor);
 	}
 }
 
-void FeatureExtractor::getBagOfWords(std::vector<cv::Mat> &TestImages, cv::Mat &FeatureVectorsSURFUnclustered, cv::Mat &dictionary, cv::Mat &clusteredFeatures)
+void FeatureExtractor::getBagOfWords(std::vector<cv::Mat> &TestImages, std::vector<cv::Mat> &FeatureVectorsSURFUnclustered, cv::Mat &dictionary, std::vector<cv::Mat> &clusteredFeatures)
 {
 	int minHessian = 400;
 	//Construct BOWKMeansTrainer
@@ -51,49 +52,51 @@ void FeatureExtractor::getBagOfWords(std::vector<cv::Mat> &TestImages, cv::Mat &
 	int flags = cv::KMEANS_PP_CENTERS;
 	//Create the BoW (or BoF) trainer
 	cv::BOWKMeansTrainer bowTrainer(dictionarySize, tc, retries, flags);
+	
 	//cluster the feature vectors
-	dictionary = bowTrainer.cluster(FeatureVectorsSURFUnclustered);
+	for (int i = 0; i < FeatureVectorsSURFUnclustered.size(); i++)
+	{
+		dictionary = bowTrainer.cluster(FeatureVectorsSURFUnclustered[i]);
 
+		////store the vocabulary
+		//cv::FileStorage fs("dictionary.yml", cv::FileStorage::WRITE);
+		//fs << "vocabulary" << dictionary;
+		//fs.release();
 
-	//store the vocabulary
-	//cv::FileStorage fs("dictionary.yml", cv::FileStorage::WRITE);
-	//fs << "vocabulary" << dictionary;
-	//fs.release();
+		//create a nearest neighbor matcher
+		cv::Ptr<cv::DescriptorMatcher> matcher(new cv::FlannBasedMatcher);
+		//create SURF feature point extracter
+		cv::Ptr<cv::FeatureDetector> detector(new cv::SurfFeatureDetector(minHessian, 4, 2, false));
+		//create SURF descriptor extractor
+		cv::Ptr<cv::DescriptorExtractor> extractor(new cv::SurfDescriptorExtractor(minHessian, 4, 2, false));
+		//create BoF (or BoW) descriptor extractor
+		cv::BOWImgDescriptorExtractor bowDE(extractor, matcher);
+		//Set the dictionary with the vocabulary we created in the first step
+		bowDE.setVocabulary(dictionary);
 
+			////To store the image file name
+			//char * filename = new char[100];
+			////To store the image tag name - only for save the descriptor in a file
+			//char * imageTag = new char[10];
+			////open the file to write the resultant descriptor
+			//cv::FileStorage fs1("descriptor.yml", cv::FileStorage::WRITE);
+			////the image file with the location. change it according to your image file location
+			//sprintf(filename, "G:\\testimages\\image\\1.jpg");
+			////read the image
+			//cv::Mat img = imread(filename, CV_LOAD_IMAGE_GRAYSCALE);
 
-	//create a nearest neighbor matcher
-	cv::Ptr<cv::DescriptorMatcher> matcher(new cv::FlannBasedMatcher);
-	//create SURF feature point extracter
-	cv::Ptr<cv::FeatureDetector> detector(new cv::SurfFeatureDetector(minHessian, 4, 2, false));
-	//create SURF descriptor extractor
-	cv::Ptr<cv::DescriptorExtractor> extractor(new cv::SurfDescriptorExtractor(minHessian, 4, 2, false));
-	//create BoF (or BoW) descriptor extractor
-	cv::BOWImgDescriptorExtractor bowDE(extractor, matcher);
-	//Set the dictionary with the vocabulary we created in the first step
-	bowDE.setVocabulary(dictionary);
-
-	////To store the image file name
-	//char * filename = new char[100];
-	////To store the image tag name - only for save the descriptor in a file
-	//char * imageTag = new char[10];
-	////open the file to write the resultant descriptor
-	//cv::FileStorage fs1("descriptor.yml", cv::FileStorage::WRITE);
-	////the image file with the location. change it according to your image file location
-	//sprintf(filename, "G:\\testimages\\image\\1.jpg");
-	////read the image
-	//cv::Mat img = imread(filename, CV_LOAD_IMAGE_GRAYSCALE);
-
-	for (cv::Mat image : TestImages)
-	{ 
-		//To store the keypoints that will be extracted by SURF
-		std::vector<cv::KeyPoint> keypoints;
-		//Detect SURF keypoints (or feature points)
-		detector->detect(image, keypoints);
-		//To store the BoW (or BoF) representation of the image
-		cv::Mat bowDescriptor;
-		//extract BoW (or BoF) descriptor from given image
-		bowDE.compute(image, keypoints, bowDescriptor);
-		clusteredFeatures.push_back(bowDescriptor);
+		for (int j = 0; j < TestImages.size(); j++)
+			{
+				//To store the keypoints that will be extracted by SURF
+				std::vector<cv::KeyPoint> keypoints;
+				//Detect SURF keypoints (or feature points)
+				detector->detect(TestImages[j], keypoints);
+				//To store the BoW (or BoF) representation of the image
+				cv::Mat bowDescriptor;
+				//extract BoW (or BoF) descriptor from given image
+				bowDE.compute(TestImages[j], keypoints, bowDescriptor);
+				clusteredFeatures[j].push_back(bowDescriptor);
+			}
 	}
 }
 

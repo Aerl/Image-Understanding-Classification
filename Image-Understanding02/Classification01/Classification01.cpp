@@ -23,7 +23,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::vector<std::string> folders;
 	folders.push_back("accordion");
 	//folders.push_back("airplanes");
-	//folders.push_back("anchor");
+	folders.push_back("anchor");
 	//folders.push_back("ant");
 	//folders.push_back("barrel");
 	//folders.push_back("bass");
@@ -48,18 +48,22 @@ int _tmain(int argc, _TCHAR* argv[])
 	GetFeatures.computeHOGFeatures(trainingImages, FeatureVectors);
 	GetFeatures.computeColorFeatures(trainingImages, FeatureVectors);
 
-	cv::Mat FeatureVectorsSURFUnclustered;
-	GetFeatures.computeSURFFeatures(trainingImages, FeatureVectorsSURFUnclustered);
+	std::vector<std::string> classNames;
+	LoadImages.getClassNames(classNames);
+	int NumberOfClasses = classNames.size();
+
+	std::vector<cv::Mat> FeatureVectorsSURFUnclustered(NumberOfClasses);
+	GetFeatures.computeSURFFeatures(trainingImages, trainingLabels, FeatureVectorsSURFUnclustered);
 
 	cv::Mat dictionary;
-	cv::Mat clusteredFeatures;
+	std::vector<cv::Mat> clusteredFeatures(testImages.size());
 	GetFeatures.getBagOfWords(testImages, FeatureVectorsSURFUnclustered, dictionary, clusteredFeatures);
 
 	//std::vector<int> classificationResults = std::vector<int>(testImages.size());
 	//GetFeatures.MakeDecisionFLANN(SURFTrain, SURFTest, trainingLabels, classificationResults);
 	//GetClassification.MakeDecisionFLANN(SURFTrain, SURFTest, trainingLabels, classificationResults);
 
-
+	return 0;
 
 	//std::vector<std::string> classNames;
 	//LoadImages.getClassNames(classNames);
@@ -159,6 +163,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		cv::waitKey(300);
 	}*/
 
-	return 0;
+
 }
 
