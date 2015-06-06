@@ -29,7 +29,7 @@ void FeatureExtractor::computeSURFFeatures(std::vector<cv::Mat> &TrainImages, st
 	std::vector<cv::KeyPoint> keypoints;
 	cv::Mat descriptor;
 
-	for (int i = 0; i < TrainImages.size(); i++)
+	for (int i = 0; i < int(TrainImages.size()); i++)
 	{
 		detector.detect(TrainImages[i], keypoints);
 		detector.compute(TrainImages[i], keypoints, descriptor);
@@ -54,7 +54,7 @@ void FeatureExtractor::getBagOfWords(std::vector<cv::Mat> &TestImages, std::vect
 	cv::BOWKMeansTrainer bowTrainer(dictionarySize, tc, retries, flags);
 	
 	//cluster the feature vectors
-	for (int i = 0; i < FeatureVectorsSURFUnclustered.size(); i++)
+	for (int i = 0; i < int(FeatureVectorsSURFUnclustered.size()); i++)
 	{
 		dictionary = bowTrainer.cluster(FeatureVectorsSURFUnclustered[i]);
 
@@ -85,7 +85,7 @@ void FeatureExtractor::getBagOfWords(std::vector<cv::Mat> &TestImages, std::vect
 			////read the image
 			//cv::Mat img = imread(filename, CV_LOAD_IMAGE_GRAYSCALE);
 
-		for (int j = 0; j < TestImages.size(); j++)
+		for (int j = 0; j < int(TestImages.size()); j++)
 			{
 				//To store the keypoints that will be extracted by SURF
 				std::vector<cv::KeyPoint> keypoints;
@@ -120,7 +120,7 @@ void FeatureExtractor::computeHOGFeatures(std::vector<cv::Mat> &Images, std::vec
 
 void FeatureExtractor::computeColorFeatures(std::vector<cv::Mat> &Images, std::vector<std::vector< cv::Mat >> &FeatureVectorsColor)
 {
-	for (int iter = 0; iter < Images.size(); ++iter)
+	for (int iter = 0; iter < int(Images.size()); ++iter)
 	{
 		std::vector<cv::Mat> bgr_planes;
 		split(Images[iter], bgr_planes);

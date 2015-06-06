@@ -90,7 +90,7 @@ void DecisionMaker::ReshapeFeatures(std::vector<std::vector< cv::Mat >> &Feature
 			{
 				for (int j = 0; j < feature.cols; j++)
 				{
-					ReshapedFeatures.at<float>(LabelIndex, iterFeatures++) = feature.at<uchar>(i, j);
+					ReshapedFeatures.at<float>(LabelIndex, iterFeatures) = feature.at<uchar>(i, j);
 				}
 			}
 		}
