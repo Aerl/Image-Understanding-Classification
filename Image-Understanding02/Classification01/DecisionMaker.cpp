@@ -33,6 +33,7 @@ void DecisionMaker::TrainSVM(std::vector<std::vector< cv::Mat >> &FeatureVectors
 	// set up SVM parameters
 	CvSVMParams params;
 	params.svm_type = CvSVM::C_SVC;
+	params.C = 1;
 	params.kernel_type = CvSVM::LINEAR;
 	params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 100, 1e-6);
 
@@ -93,7 +94,7 @@ void DecisionMaker::ReshapeFeatures(std::vector<std::vector< cv::Mat >> &Feature
 			{
 				for (int j = 0; j < feature.cols; j++)
 				{
-					ReshapedFeatures.at<float>(LabelIndex, iterFeatures++) = feature.at<uchar>(i,j);
+					ReshapedFeatures.at<float>(LabelIndex, iterFeatures++) = feature.at<int>(i, j);
 				}
 			}
 		}
