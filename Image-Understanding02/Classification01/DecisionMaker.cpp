@@ -47,7 +47,7 @@ void DecisionMaker::PredictSVM(std::vector<std::vector< cv::Mat >> &FeatureVecto
 	cv::Mat Results;
 	this->svm.predict(ReshapedFeatures, Results);
 	ReshapeLabels(Results, ClassificationResults);
-	std::cout << ClassificationResults.size() << std::endl;
+	//std::cout << ClassificationResults.size() << std::endl;
 }
 
 void DecisionMaker::ReshapeLabels(std::vector<int> &Labels, cv::Mat &ReshapedLabels)

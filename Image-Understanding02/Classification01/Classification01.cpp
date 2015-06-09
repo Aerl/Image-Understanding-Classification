@@ -20,6 +20,22 @@ int _tmain(int argc, _TCHAR* argv[])
 	FeatureExtractor GetFeatures;
 	DecisionMaker GetClassification;
 
+	std::vector<cv::Mat> trainingImages;
+	std::vector<int> trainingLabels;
+
+	std::vector<cv::Mat> testImages;
+	std::vector<int> testLabels;
+
+	std::vector<std::vector< cv::Mat >> FeatureVectorsTraining;
+	std::vector<std::vector< cv::Mat >> FeatureVectorsTest;
+
+	std::vector<int> ResultsTest;
+	std::vector<int> ResultsTraining;
+	
+	std::vector<std::string> classNames;
+	int NumberOfSamples;
+	int NumberOfClasses;
+
 	std::vector<std::string> folders;
 	folders.push_back("accordion");
 	//folders.push_back("airplanes");
@@ -30,70 +46,61 @@ int _tmain(int argc, _TCHAR* argv[])
 	//folders.push_back("beaver");
 	folders.push_back("binocular");
 	folders.push_back("bonsai");
-
-
-
-	//LoadImages.LoadImagesFromSubfolders(folders);
-	LoadImages.LoadImages();
-	std::vector<cv::Mat> trainingImages;
-	std::vector<int> trainingLabels;
-
-	std::vector<cv::Mat> testImages;
-	std::vector<int> testLabels;
-
-	LoadImages.getTrainingData(trainingImages, trainingLabels);
-	LoadImages.getTestData(testImages, testLabels);
-
-	std::vector<std::vector< cv::Mat >> FeatureVectors = std::vector<std::vector< cv::Mat>>(trainingImages.size());
-	GetFeatures.computeHOGFeatures(trainingImages, FeatureVectors);
-	GetFeatures.computeColorFeatures(trainingImages, FeatureVectors);
-
-	//GetClassification.TrainSVM(FeatureVectors, trainingLabels);
-
-	//std::vector<std::string> classNames;
-	//LoadImages.getClassNames(classNames);
-	//int NumberOfClasses = classNames.size();
-
-
-	//std::vector<int> classificationResults = std::vector<int>(testImages.size());
 	
 
-	GetClassification.TrainSVM(FeatureVectors, trainingLabels);
-	// svm.predict to classify an image
+	for (int i = 0; i < 5; ++i)
+	{
+		//LoadImages.LoadImagesFromSubfolders(folders);
+		LoadImages.LoadImages();
+		LoadImages.getTrainingData(trainingImages, trainingLabels);
+		LoadImages.getTestData(testImages, testLabels);
+
+		FeatureVectorsTraining.clear();
+		FeatureVectorsTraining.resize(trainingImages.size());
+
+		GetFeatures.computeHOGFeatures(trainingImages, FeatureVectorsTraining);
+		GetFeatures.computeColorFeatures(trainingImages, FeatureVectorsTraining);
+
+		GetClassification.TrainSVM(FeatureVectorsTraining, trainingLabels);
+
+		GetClassification.PredictSVM(FeatureVectorsTraining, ResultsTraining);
+
+		FeatureVectorsTest.clear();
+		FeatureVectorsTest.resize(testImages.size());
+
+		GetFeatures.computeHOGFeatures(testImages, FeatureVectorsTest);
+		GetFeatures.computeColorFeatures(testImages, FeatureVectorsTest);
+
+		GetClassification.PredictSVM(FeatureVectorsTest, ResultsTest);
+		
+		LoadImages.getClassNames(classNames);
+		NumberOfClasses = classNames.size();
+		LoadImages.getSampleSize(NumberOfSamples);
+
+		EvaluationUnit GetTrainingEvaluation(trainingLabels, NumberOfClasses, NumberOfSamples);
+		double TrainingPercent = GetTrainingEvaluation.EvaluateResultSimple(ResultsTraining);
+		std::cout << " Training Data Simple Percentage: " + std::to_string(TrainingPercent) << std::endl;
+
+		EvaluationUnit GetTestEvaluation(testLabels, NumberOfClasses, NumberOfSamples);
+		double TestPercent = GetTestEvaluation.EvaluateResultSimple(ResultsTest);
+		std::cout << " Test Data Simple Percentage: " + std::to_string(TestPercent) << std::endl;
+
+		
+
+	}
+
+	
+	
 	
 
-	FeatureVectors = std::vector<std::vector< cv::Mat>>(testImages.size());
-
-	GetFeatures.computeHOGFeatures(testImages, FeatureVectors);
-	GetFeatures.computeColorFeatures(testImages, FeatureVectors);
-
-	std::cout << "FeatureVectors: " + std::to_string(FeatureVectors.size()) << std::endl;
-
-	std::vector<int> Results;
-	GetClassification.PredictSVM(FeatureVectors, Results);
-
-	std::cout << "Results: " + std::to_string(Results.size()) << std::endl;
-
-
-	std::vector<std::string> classNames;
-	LoadImages.getClassNames(classNames);
-	int NumberOfSamples;
-	LoadImages.getSampleSize(NumberOfSamples);
-	int NumberOfClasses = classNames.size();
-
-	EvaluationUnit GetEvaluation(testLabels, NumberOfClasses, NumberOfSamples);
-
-	double percent = GetEvaluation.EvaluateResultSimple(Results);
-	std::cout << "Simple Percentage: " + std::to_string(percent) << std::endl;
-
-	std::vector<double> classPercentage;
+	/*std::vector<double> classPercentage;
 	std::vector<std::vector<int>> statistics;
 	GetEvaluation.EvaluateResultComplex(Results, classPercentage, statistics);
 	for (int i = 0; i < classPercentage.size(); i++)
 	{
 		std::cout << "Complex Percentage Class " + std::to_string(i) + " : " + std::to_string(classPercentage[i]) << std::endl;
 	}
-
+*/
 
 
 	return 0;

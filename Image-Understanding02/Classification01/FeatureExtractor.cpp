@@ -141,13 +141,13 @@ void FeatureExtractor::computeHOGFeatures(std::vector<cv::Mat> &Images, std::vec
 	int Size = int(Images.size());
 	hog.blockSize = cv::Size(8,8);
 	hog.cellSize = cv::Size(8,8);
-	hog.nbins = 4;
+	hog.nbins = 5;
 	for (int iter = 0; iter < Size; ++iter)
 	{
 		cv::cvtColor(Images[iter], gray, cv::COLOR_BGR2GRAY);
 		
 		hog.compute(gray, descriptors, cv::Size(hog.winSize.width/2, hog.winSize.height/2), cv::Size(0, 0), location);
-		std::cout << "  Feature Size: " + std::to_string(descriptors.size()) << std::endl;
+		//std::cout << "  Feature Size: " + std::to_string(descriptors.size()) << std::endl;
 		cv::Mat help = cv::Mat(descriptors).clone();
 		FeatureVectors[iter].push_back(help);
 
