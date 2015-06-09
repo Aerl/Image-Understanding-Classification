@@ -27,7 +27,10 @@ int _tmain(int argc, _TCHAR* argv[])
 	std::vector<int> testLabels;
 
 	std::vector<std::vector< cv::Mat >> FeatureVectorsTraining;
+	cv::Mat ReshapedFeatureVectorsTraining;
+	cv::Mat ReducedFeatureVectorsTraining;
 	std::vector<std::vector< cv::Mat >> FeatureVectorsTest;
+	cv::Mat ReshapedFeatureVectorsTest;
 
 	std::vector<int> ResultsTest;
 	std::vector<int> ResultsTraining;
@@ -40,15 +43,15 @@ int _tmain(int argc, _TCHAR* argv[])
 	folders.push_back("accordion");
 	//folders.push_back("airplanes");
 	folders.push_back("anchor");
-	//folders.push_back("ant");
+	folders.push_back("ant");
 	folders.push_back("barrel");
 	folders.push_back("bass");
-	//folders.push_back("beaver");
+	folders.push_back("beaver");
 	folders.push_back("binocular");
 	folders.push_back("bonsai");
 	
 
-	for (int i = 0; i < 5; ++i)
+	for (int i = 0; i < 4; ++i)
 	{
 		//LoadImages.LoadImagesFromSubfolders(folders);
 		LoadImages.LoadImages();
@@ -59,19 +62,26 @@ int _tmain(int argc, _TCHAR* argv[])
 		FeatureVectorsTraining.resize(trainingImages.size());
 
 		GetFeatures.computeHOGFeatures(trainingImages, FeatureVectorsTraining);
-		GetFeatures.computeColorFeatures(trainingImages, FeatureVectorsTraining);
+		//GetFeatures.computeColorFeatures(trainingImages, FeatureVectorsTraining);
 
-		GetClassification.TrainSVM(FeatureVectorsTraining, trainingLabels);
+		GetClassification.ReshapeFeatures(FeatureVectorsTraining, ReshapedFeatureVectorsTraining);
 
-		GetClassification.PredictSVM(FeatureVectorsTraining, ResultsTraining);
+		//GetClassification.reduceFeaturesPCA(ReshapedFeatureVectorsTraining, ReducedFeatureVectorsTraining);
+
+		GetClassification.TrainRandomTrees(ReshapedFeatureVectorsTraining, trainingLabels);
+		std::cout << "Training done." << std::endl;
+
+		GetClassification.PredictRandomTrees(ReshapedFeatureVectorsTraining, ResultsTraining);
 
 		FeatureVectorsTest.clear();
 		FeatureVectorsTest.resize(testImages.size());
 
 		GetFeatures.computeHOGFeatures(testImages, FeatureVectorsTest);
-		GetFeatures.computeColorFeatures(testImages, FeatureVectorsTest);
+		//GetFeatures.computeColorFeatures(testImages, FeatureVectorsTest);
 
-		GetClassification.PredictSVM(FeatureVectorsTest, ResultsTest);
+		GetClassification.ReshapeFeatures(FeatureVectorsTest, ReshapedFeatureVectorsTest);
+
+		GetClassification.PredictRandomTrees(ReshapedFeatureVectorsTest, ResultsTest);
 		
 		LoadImages.getClassNames(classNames);
 		NumberOfClasses = classNames.size();
@@ -81,31 +91,28 @@ int _tmain(int argc, _TCHAR* argv[])
 		double TrainingPercent = GetTrainingEvaluation.EvaluateResultSimple(ResultsTraining);
 		std::cout << " Training Data Simple Percentage: " + std::to_string(TrainingPercent) << std::endl;
 
+		std::vector<double> classPercentageTraining;
+		std::vector<std::vector<int>> TrainingStatistics;
+		GetTrainingEvaluation.EvaluateResultComplex(ResultsTraining, classPercentageTraining, TrainingStatistics);
+		//for (int i = 0; i < classPercentageTraining.size(); i++)
+		//{
+		//	std::cout << "   " + classNames[i] + ": " + std::to_string(classPercentageTraining[i]) << std::endl;
+		//}
+
 		EvaluationUnit GetTestEvaluation(testLabels, NumberOfClasses, NumberOfSamples);
 		double TestPercent = GetTestEvaluation.EvaluateResultSimple(ResultsTest);
 		std::cout << " Test Data Simple Percentage: " + std::to_string(TestPercent) << std::endl;
 
-		
+		/*std::vector<double> classPercentageTest;
+		std::vector<std::vector<int>> TestStatistics;
+		GetTestEvaluation.EvaluateResultComplex(ResultsTest, classPercentageTest, TestStatistics);
+		for (int i = 0; i < classPercentageTest.size(); i++)
+		{
+			std::cout << "   " + classNames[i] + ": " + std::to_string(classPercentageTest[i]) << std::endl;
+		}	*/	
 
 	}
-
 	
-	
-	
-
-	/*std::vector<double> classPercentage;
-	std::vector<std::vector<int>> statistics;
-	GetEvaluation.EvaluateResultComplex(Results, classPercentage, statistics);
-	for (int i = 0; i < classPercentage.size(); i++)
-	{
-		std::cout << "Complex Percentage Class " + std::to_string(i) + " : " + std::to_string(classPercentage[i]) << std::endl;
-	}
-*/
-
-
 	return 0;
-
-
-
 }
 

@@ -139,9 +139,9 @@ void FeatureExtractor::computeHOGFeatures(std::vector<cv::Mat> &Images, std::vec
 	std::vector< cv::Point > location;
 	std::vector< float > descriptors;
 	int Size = int(Images.size());
-	hog.blockSize = cv::Size(8,8);
-	hog.cellSize = cv::Size(8,8);
-	hog.nbins = 5;
+	hog.blockSize = cv::Size(32,32);
+	hog.cellSize = cv::Size(16,16);
+	hog.nbins = 4;
 	for (int iter = 0; iter < Size; ++iter)
 	{
 		cv::cvtColor(Images[iter], gray, cv::COLOR_BGR2GRAY);
@@ -155,7 +155,7 @@ void FeatureExtractor::computeHOGFeatures(std::vector<cv::Mat> &Images, std::vec
 		//cv::namedWindow("calcHist Demo", CV_WINDOW_AUTOSIZE);
 		//imshow("calcHist Demo", help);
 
-		//cv::waitKey(0);
+		cv::waitKey(0);
 	}
 }
 

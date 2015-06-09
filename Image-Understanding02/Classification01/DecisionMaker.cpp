@@ -23,12 +23,12 @@ DecisionMaker::~DecisionMaker()
 {
 }
 
-void DecisionMaker::TrainSVM(std::vector<std::vector< cv::Mat >> &FeatureVectors, std::vector<int> &Labels)
+//----------------SVMs------------------
+
+void DecisionMaker::TrainSVM(cv::Mat &FeatureVectors, std::vector<int> &Labels)
 {
-	cv::Mat ReshapedFeatures;
 	cv::Mat ReshapedLabels;
 	ReshapeLabels(Labels, ReshapedLabels);
-	ReshapeFeatures(FeatureVectors, ReshapedFeatures);
 
 	// set up SVM parameters
 	CvSVMParams params;
@@ -37,18 +37,88 @@ void DecisionMaker::TrainSVM(std::vector<std::vector< cv::Mat >> &FeatureVectors
 	params.term_crit = cvTermCriteria(CV_TERMCRIT_ITER, 500, 1e-6);
 
 	// set up Support Vector Machine for training and classification 
-	this->svm.train(ReshapedFeatures, ReshapedLabels, cv::Mat(), cv::Mat(), params);
+	this->svm.train(FeatureVectors, ReshapedLabels, cv::Mat(), cv::Mat(), params);
 }
 
-void DecisionMaker::PredictSVM(std::vector<std::vector< cv::Mat >> &FeatureVectors, std::vector<int> &ClassificationResults)
+void DecisionMaker::PredictSVM(cv::Mat &FeatureVectors, std::vector<int> &ClassificationResults)
 {
-	cv::Mat ReshapedFeatures;
-	ReshapeFeatures(FeatureVectors, ReshapedFeatures);
 	cv::Mat Results;
-	this->svm.predict(ReshapedFeatures, Results);
+	this->svm.predict(FeatureVectors, Results);
 	ReshapeLabels(Results, ClassificationResults);
 	//std::cout << ClassificationResults.size() << std::endl;
 }
+
+//----------------Random Trees------------------
+
+void DecisionMaker::TrainRandomTrees(cv::Mat &FeatureVectors, std::vector<int> &Labels)
+{
+	CvRTParams params = CvRTParams();
+
+	params.max_depth = 60;
+	params.min_sample_count = FeatureVectors.rows / 100; //1%
+	params.max_categories = 100;
+
+	/*(25, // max depth
+	5, // min sample count
+	0, // regression accuracy: N/A here
+	false, // compute surrogate split, no missing data
+	15, // max number of categories (use sub-optimal algorithm for larger numbers)
+	priors, // the array of priors
+	false,  // calculate variable importance
+	4,       // number of variables randomly selected at node and used to find the best split(s).
+	100,	 // max number of trees in the forest
+	0.01f,				// forrest accuracy
+	CV_TERMCRIT_ITER | CV_TERMCRIT_EPS // termination cirteria
+	);*/
+
+	cv::Mat ReshapedLabels;
+	ReshapeLabels(Labels, ReshapedLabels);
+
+	this->rtree.train(FeatureVectors, CV_ROW_SAMPLE, ReshapedLabels, cv::Mat(), cv::Mat(), cv::Mat(), cv::Mat(), params);
+}
+
+void DecisionMaker::PredictRandomTrees(cv::Mat &FeatureVectors, std::vector<int> &ClassificationResults)
+{
+	ClassificationResults = std::vector<int>(FeatureVectors.rows);
+
+	for (int iter = 0; iter < FeatureVectors.rows; ++iter)
+	{
+		cv::Mat Sample = FeatureVectors.row(iter);
+		/*		cv::Mat FloatSample;
+		Sample.convertTo(FloatSample, CV_32FC1); */
+		float SampleResult = this->rtree.predict(Sample);
+		//std::cout << SampleResult << std::endl;
+		ClassificationResults[iter] = int(SampleResult);
+	}
+
+}
+
+//----------------Feature Reduction------------------
+
+void DecisionMaker::reduceFeaturesPCA(cv::Mat &Features, cv::Mat &ReducedFeatures)
+{
+	std::cout << "Features: " + std::to_string(Features.cols) << std::endl;
+
+	pca = cv::PCA(Features, // pass the data
+		cv::Mat(), // we do not have a pre-computed mean vector,
+		// so let the PCA engine to compute it
+		0, // DATA_AS_ROW indicate that the vectors
+		// are stored as matrix rows
+		// (use PCA::DATA_AS_COL if the vectors are
+		// the matrix columns)
+		Features.rows/2 // specify, how many principal components to retain
+		);
+
+	pca.project(Features, ReducedFeatures);
+
+	std::cout << "Features: " + std::to_string(Features.cols) << std::endl;
+	std::cout << "ReducedFeatures: " + std::to_string(ReducedFeatures.cols) << std::endl;
+}
+
+
+
+
+//----------------Reshaping------------------
 
 void DecisionMaker::ReshapeLabels(std::vector<int> &Labels, cv::Mat &ReshapedLabels)
 {
@@ -74,7 +144,6 @@ void DecisionMaker::ReshapeLabels(cv::Mat &Labels, std::vector<int> &ReshapedLab
 		}
 	}
 }
-
 
 void DecisionMaker::ReshapeFeatures(std::vector<std::vector< cv::Mat >> &FeatureVectors, cv::Mat &ReshapedFeatures)
 {
@@ -111,30 +180,3 @@ void DecisionMaker::ReshapeFeatures(std::vector<std::vector< cv::Mat >> &Feature
 		labelIndex++;
 	}
 }
-
-
-//// define the parameters for training the random forest (trees)
-//
-//float priors[] = { 1, 1, 1, 1, 1, 1, 1, 1, 1, 1 };  // weights of each classification for classes
-//// (all equal as equal samples of each digit)
-//
-//CvRTParams params = CvRTParams(25, // max depth
-//	5, // min sample count
-//	0, // regression accuracy: N/A here
-//	false, // compute surrogate split, no missing data
-//	15, // max number of categories (use sub-optimal algorithm for larger numbers)
-//	priors, // the array of priors
-//	false,  // calculate variable importance
-//	4,       // number of variables randomly selected at node and used to find the best split(s).
-//	100,	 // max number of trees in the forest
-//	0.01f,				// forrest accuracy
-//	CV_TERMCRIT_ITER | CV_TERMCRIT_EPS // termination cirteria
-//	);
-//
-//// train random forest classifier (using training data)
-//
-//printf("\nUsing training database: %s\n\n", argv[1]);
-//CvRTrees* rtree = new CvRTrees;
-//
-//rtree->train(training_data, CV_ROW_SAMPLE, training_classifications,
-//	Mat(), Mat(), var_type, Mat(), params);

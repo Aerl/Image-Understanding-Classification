@@ -1,6 +1,9 @@
 #pragma once
-#include <vector>
 #include <opencv2/opencv.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/ml/ml.hpp>
+#include <vector>
+
 
 class DecisionMaker
 {
@@ -15,17 +18,26 @@ class DecisionMaker
 
 	Parameters parameters;
 	cv::SVM svm;
-
+	CvRTrees rtree;
+	cv::PCA pca;
 public:
+	//Constructor
 	DecisionMaker();
 	DecisionMaker(int xDim, int yDim);
+	//Dstructor
 	~DecisionMaker();
-	void TrainSVM(std::vector<std::vector< cv::Mat >> &FeatureVectors, std::vector<int> &trainingLabels);
-	void PredictSVM(std::vector<std::vector< cv::Mat >> &FeatureVectors, std::vector<int> &ClassificationResults);
+	//SVMs
+	void TrainSVM(cv::Mat &FeatureVectors, std::vector<int> &trainingLabels);
+	void PredictSVM(cv::Mat &FeatureVectors, std::vector<int> &ClassificationResults);
+	//Random Trees
+	void TrainRandomTrees(cv::Mat &FeatureVectors, std::vector<int> &trainingLabels);
+	void PredictRandomTrees(cv::Mat &FeatureVectors, std::vector<int> &ClassificationResults);;
+	//Feature Reduction
+	void reduceFeaturesPCA(cv::Mat &Features, cv::Mat &ReducedFeatures);
+	//Reshaping
 	void ReshapeLabels(cv::Mat &Labels, std::vector<int> &ReshapedLabels);
-private:
 	void ReshapeLabels(std::vector<int> &Labels, cv::Mat &ReshapedLabels);
 	void ReshapeFeatures(std::vector<std::vector< cv::Mat >> &FeatureVectors, cv::Mat &ReshapedFeatures);
-
 	};
+
 
