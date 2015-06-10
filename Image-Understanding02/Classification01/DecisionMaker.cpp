@@ -95,10 +95,8 @@ void DecisionMaker::PredictRandomTrees(cv::Mat &FeatureVectors, std::vector<int>
 
 //----------------Feature Reduction------------------
 
-void DecisionMaker::reduceFeaturesPCA(cv::Mat &Features, cv::Mat &ReducedFeatures)
+void DecisionMaker::constructPCA(cv::Mat &Features)
 {
-	std::cout << "Features: " + std::to_string(Features.cols) << std::endl;
-
 	pca = cv::PCA(Features, // pass the data
 		cv::Mat(), // we do not have a pre-computed mean vector,
 		// so let the PCA engine to compute it
@@ -106,17 +104,18 @@ void DecisionMaker::reduceFeaturesPCA(cv::Mat &Features, cv::Mat &ReducedFeature
 		// are stored as matrix rows
 		// (use PCA::DATA_AS_COL if the vectors are
 		// the matrix columns)
-		Features.rows/2 // specify, how many principal components to retain
+		Features.cols / 2 // specify, how many principal components to retain
 		);
+	std::cout << "PCA constructed" << std::endl;
+}
 
+void DecisionMaker::reduceFeaturesPCA(cv::Mat &Features, cv::Mat &ReducedFeatures)
+{
 	pca.project(Features, ReducedFeatures);
 
 	std::cout << "Features: " + std::to_string(Features.cols) << std::endl;
 	std::cout << "ReducedFeatures: " + std::to_string(ReducedFeatures.cols) << std::endl;
 }
-
-
-
 
 //----------------Reshaping------------------
 

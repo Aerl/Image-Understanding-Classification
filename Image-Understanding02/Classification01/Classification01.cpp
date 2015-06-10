@@ -31,6 +31,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	cv::Mat ReducedFeatureVectorsTraining;
 	std::vector<std::vector< cv::Mat >> FeatureVectorsTest;
 	cv::Mat ReshapedFeatureVectorsTest;
+	cv::Mat ReducedFeatureVectorsTest;
 
 	std::vector<int> ResultsTest;
 	std::vector<int> ResultsTraining;
@@ -51,7 +52,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	folders.push_back("bonsai");
 	
 
-	for (int i = 0; i < 4; ++i)
+	for (int i = 0; i < 10; ++i)
 	{
 		//LoadImages.LoadImagesFromSubfolders(folders);
 		LoadImages.LoadImages();
@@ -66,12 +67,15 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		GetClassification.ReshapeFeatures(FeatureVectorsTraining, ReshapedFeatureVectorsTraining);
 
+		//GetClassification.constructPCA(ReshapedFeatureVectorsTraining);
 		//GetClassification.reduceFeaturesPCA(ReshapedFeatureVectorsTraining, ReducedFeatureVectorsTraining);
 
-		GetClassification.TrainRandomTrees(ReshapedFeatureVectorsTraining, trainingLabels);
+		//GetClassification.TrainRandomTrees(ReshapedFeatureVectorsTraining, trainingLabels);
+		GetClassification.TrainSVM(ReshapedFeatureVectorsTraining, trainingLabels);
 		std::cout << "Training done." << std::endl;
 
-		GetClassification.PredictRandomTrees(ReshapedFeatureVectorsTraining, ResultsTraining);
+		//GetClassification.PredictRandomTrees(ReshapedFeatureVectorsTraining, ResultsTraining);
+		GetClassification.PredictSVM(ReshapedFeatureVectorsTraining, ResultsTraining);
 
 		FeatureVectorsTest.clear();
 		FeatureVectorsTest.resize(testImages.size());
@@ -80,8 +84,10 @@ int _tmain(int argc, _TCHAR* argv[])
 		//GetFeatures.computeColorFeatures(testImages, FeatureVectorsTest);
 
 		GetClassification.ReshapeFeatures(FeatureVectorsTest, ReshapedFeatureVectorsTest);
+		//GetClassification.reduceFeaturesPCA(ReshapedFeatureVectorsTest, ReducedFeatureVectorsTest);
 
-		GetClassification.PredictRandomTrees(ReshapedFeatureVectorsTest, ResultsTest);
+		//GetClassification.PredictRandomTrees(ReshapedFeatureVectorsTest, ResultsTest);
+		GetClassification.PredictSVM(ReshapedFeatureVectorsTest, ResultsTest);
 		
 		LoadImages.getClassNames(classNames);
 		NumberOfClasses = classNames.size();

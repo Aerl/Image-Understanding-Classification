@@ -139,9 +139,10 @@ void FeatureExtractor::computeHOGFeatures(std::vector<cv::Mat> &Images, std::vec
 	std::vector< cv::Point > location;
 	std::vector< float > descriptors;
 	int Size = int(Images.size());
-	hog.blockSize = cv::Size(32,32);
+	hog.blockSize = cv::Size(64,64);
+	hog.blockStride = cv::Size(8, 8);
 	hog.cellSize = cv::Size(16,16);
-	hog.nbins = 4;
+	hog.nbins = 8;
 	for (int iter = 0; iter < Size; ++iter)
 	{
 		cv::cvtColor(Images[iter], gray, cv::COLOR_BGR2GRAY);
