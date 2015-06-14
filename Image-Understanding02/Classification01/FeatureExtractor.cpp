@@ -18,12 +18,12 @@ FeatureExtractor::~FeatureExtractor()
 
 }
 
-void FeatureExtractor::computeSURFFeatures(std::vector<cv::Mat> &TrainImages, std::vector<int> &trainingLabels, std::vector<cv::Mat> &FeatureVectorsSURFUnclustered)
+void FeatureExtractor::computeSURFFeatures(std::vector<cv::Mat> &TrainImages, std::vector<cv::Mat> &FeatureVectorsSURFUnclustered, int &dictionarySize)
 {
-	int minHessian = 400;
+	int minHessian = 100;
 
 	cv::SurfFeatureDetector detector(minHessian, 4, 2, false);
-	cv::SurfDescriptorExtractor surf;
+	cv::SurfDescriptorExtractor extractor;
 
 	std::vector<cv::KeyPoint> keypoints;
 	cv::Mat descriptor;
@@ -31,21 +31,30 @@ void FeatureExtractor::computeSURFFeatures(std::vector<cv::Mat> &TrainImages, st
 	for (int i = 0; i < int(TrainImages.size()); i++)
 	{
 		detector.detect(TrainImages[i], keypoints);
-		detector.compute(TrainImages[i], keypoints, descriptor);
+		extractor.compute(TrainImages[i], keypoints, descriptor);
 		//int pushIndex = trainingLabels[i];
 		FeatureVectorsSURFUnclustered[i].push_back(descriptor);
 	}
+
+	for (int i = 0; i < FeatureVectorsSURFUnclustered.size(); i++)
+	{
+		if (FeatureVectorsSURFUnclustered[i].rows < dictionarySize)
+		{
+			dictionarySize = FeatureVectorsSURFUnclustered[i].rows;
+		}
+	}
+
 }
 
-void FeatureExtractor::getBagOfWords(std::vector<cv::Mat> &TestImages, std::vector<cv::Mat> &FeatureVectorsSURFUnclustered, std::vector<int> &trainingLabels, cv::Mat &clusteredFeatures, cv::Mat &labels)
+void FeatureExtractor::getBagOfWords(std::vector<cv::Mat> &TestImages, std::vector<cv::Mat> &FeatureVectorsSURFUnclustered, std::vector<std::vector< cv::Mat >> &clusteredFeatures, int &dictionarySize)
 {
 
 	cv::Mat dictionary;
 
-	int minHessian = 400;
+	std::cout << "Dictionary Size = " + std::to_string(dictionarySize) << std::endl;
+
+	int minHessian = 100;
 	//Construct BOWKMeansTrainer
-	//the number of bags
-	int dictionarySize = 15;
 	//define Term Criteria
 	cv::TermCriteria tc(CV_TERMCRIT_ITER, 100, 0.001);
 	//retries number
@@ -64,71 +73,51 @@ void FeatureExtractor::getBagOfWords(std::vector<cv::Mat> &TestImages, std::vect
 	//Create the BoW (or BoF) trainer
 	cv::BOWKMeansTrainer bowTrainer(dictionarySize, tc, retries, flags);
 
-	std::vector<cv::Mat> clusteredFeaturesUnsorted(9);
+	//std::vector<cv::Mat> clusteredFeaturesUnsorted(9);
 
 	//cluster the feature vectors
-	for (int i = 0; i < int(FeatureVectorsSURFUnclustered.size()); i++)
+	for (int i = 0; i < int(TestImages.size()); i++)
 	{
-		
-		dictionary = bowTrainer.cluster(FeatureVectorsSURFUnclustered[i]);
-
-		////store the vocabulary
-		//cv::FileStorage fs("dictionary.yml", cv::FileStorage::WRITE);
-		//fs << "vocabulary" << dictionary;
-		//fs.release();
-
+		dictionary = bowTrainer.cluster(FeatureVectorsSURFUnclustered[i]);;
 		//Set the dictionary with the vocabulary we created in the first step
 		bowDE.setVocabulary(dictionary);
 
-		////To store the image file name
-		//char * filename = new char[100];
-		////To store the image tag name - only for save the descriptor in a file
-		//char * imageTag = new char[10];
-		////open the file to write the resultant descriptor
-		//cv::FileStorage fs1("descriptor.yml", cv::FileStorage::WRITE);
-		////the image file with the location. change it according to your image file location
-		//sprintf(filename, "G:\\testimages\\image\\1.jpg");
-		////read the image
-		//cv::Mat img = imread(filename, CV_LOAD_IMAGE_GRAYSCALE);
-
-		//for (int j = 0; j < int(TestImages.size()); j++)
-		//{
-		//To store the keypoints that will be extracted by SURF
 		std::vector<cv::KeyPoint> keypoints;
 		//Detect SURF keypoints (or feature points)
 		detector->detect(TestImages[i], keypoints);
 		//To store the BoW (or BoF) representation of the image
 		cv::Mat bowDescriptor;
+		
 		//extract BoW (or BoF) descriptor from given image
 		bowDE.compute(TestImages[i], keypoints, bowDescriptor);
-		clusteredFeaturesUnsorted[trainingLabels[i]].push_back(bowDescriptor);
+
+		clusteredFeatures[i].push_back(bowDescriptor);
 		//}
 	}
 
-	int num_files = clusteredFeaturesUnsorted.size();
-	int sze_rows = clusteredFeaturesUnsorted[0].rows;
-	int sze_cols = clusteredFeaturesUnsorted[0].cols;
-	int area = sze_rows * sze_cols;
-	cv::Mat labelsTemp(num_files, 1, CV_32FC1);
-	cv::Mat clusteredFeaturesTemp(num_files, area, CV_32FC1);
-	int labelIndex = 0;
+	//int num_files = clusteredFeaturesUnsorted.size();
+	//int sze_rows = clusteredFeaturesUnsorted[0].rows;
+	//int sze_cols = clusteredFeaturesUnsorted[0].cols;
+	//int area = sze_rows * sze_cols;
+	//cv::Mat labelsTemp(num_files, 1, CV_32FC1);
+	//cv::Mat clusteredFeaturesTemp(num_files, area, CV_32FC1);
+	//int labelIndex = 0;
 
-	// reshape Images to one Mat for the SVM
-	for (cv::Mat feature : clusteredFeaturesUnsorted)
-	{
-		int ii = 0;
-		for (int i = 0; i < feature.rows; i++)
-		{
-			for (int j = 0; j < feature.cols; j++)
-			{
-				clusteredFeaturesTemp.at<float>(labelIndex, ii++) = feature.at<int>(i, j);
-			}
-		}
-		labelsTemp.at<float>(labelIndex) = trainingLabels.at(labelIndex);
-		labelIndex++;
-	}
-	clusteredFeatures = clusteredFeaturesTemp.clone();
-	labels = labelsTemp.clone();
+	//// reshape Images to one Mat for the SVM
+	//for (cv::Mat feature : clusteredFeaturesUnsorted)
+	//{
+	//	int ii = 0;
+	//	for (int i = 0; i < feature.rows; i++)
+	//	{
+	//		for (int j = 0; j < feature.cols; j++)
+	//		{
+	//			clusteredFeaturesTemp.at<float>(labelIndex, ii++) = feature.at<int>(i, j);
+	//		}
+	//	}
+	//	labelsTemp.at<float>(labelIndex) = trainingLabels.at(labelIndex);
+	//	clusteredFeatures[ii].push_back(clusteredFeaturesTemp);
+	//	labelIndex++;
+	//}
 }
 
 void FeatureExtractor::computeHOGFeatures(std::vector<cv::Mat> &Images, std::vector<std::vector< cv::Mat >> &FeatureVectors)
