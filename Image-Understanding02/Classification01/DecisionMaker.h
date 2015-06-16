@@ -38,6 +38,8 @@ public:
 	void ReshapeLabels(cv::Mat &Labels, std::vector<int> &ReshapedLabels);
 	void ReshapeLabels(std::vector<int> &Labels, cv::Mat &ReshapedLabels);
 	void ReshapeFeatures(std::vector<std::vector< cv::Mat >> &FeatureVectors, cv::Mat &ReshapedFeatures);
+
+	void DecisionMaker::constructPCA(cv::Mat &Features);
 	};
 
 

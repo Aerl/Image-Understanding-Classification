@@ -20,10 +20,17 @@ FeatureExtractor::~FeatureExtractor()
 
 void FeatureExtractor::computeSURFFeatures(std::vector<cv::Mat> &TrainImages, std::vector<cv::Mat> &FeatureVectorsSURFUnclustered, int &dictionarySize)
 {
-	int minHessian = 100;
+	int minHessian = 400;
 
-	cv::SurfFeatureDetector detector(minHessian, 4, 2, false);
-	cv::SurfDescriptorExtractor extractor;
+	cv::SiftFeatureDetector detector(10000, 5, 0.0004, 1000, 0.6);
+	cv::SiftDescriptorExtractor extractor(10000, 5, 0.0004, 1000, 0.6);
+
+
+	//int Threshl = 0;
+	//int Octaves = 0;
+	//float PatternScales = 0.1f;
+	//cv::BRISK  BRISKD(Threshl, Octaves, PatternScales);//initialize algoritm
+	//BRISKD.create("Feature2D.BRISK");
 
 	std::vector<cv::KeyPoint> keypoints;
 	cv::Mat descriptor;
@@ -31,6 +38,7 @@ void FeatureExtractor::computeSURFFeatures(std::vector<cv::Mat> &TrainImages, st
 	for (int i = 0; i < int(TrainImages.size()); i++)
 	{
 		detector.detect(TrainImages[i], keypoints);
+		//std::cout << std::to_string(keypoints.size()) << std::endl;
 		extractor.compute(TrainImages[i], keypoints, descriptor);
 		//int pushIndex = trainingLabels[i];
 		FeatureVectorsSURFUnclustered[i].push_back(descriptor);
@@ -43,6 +51,7 @@ void FeatureExtractor::computeSURFFeatures(std::vector<cv::Mat> &TrainImages, st
 			dictionarySize = FeatureVectorsSURFUnclustered[i].rows;
 		}
 	}
+	//std::cout << std::to_string(dictionarySize) << std::endl;
 
 }
 
@@ -62,23 +71,32 @@ void FeatureExtractor::getBagOfWords(std::vector<cv::Mat> &TestImages, std::vect
 	//necessary flags
 	int flags = cv::KMEANS_PP_CENTERS;
 
-	//create a nearest neighbor matcher
+	
 	cv::Ptr<cv::DescriptorMatcher> matcher(new cv::FlannBasedMatcher);
-	//create SURF feature point extracter
-	cv::Ptr<cv::FeatureDetector> detector(new cv::SurfFeatureDetector(minHessian, 4, 2, false));
-	//create SURF descriptor extractor
-	cv::Ptr<cv::DescriptorExtractor> extractor(new cv::SurfDescriptorExtractor(minHessian, 4, 2, false));
+	////create SURF feature point extracter
+	//cv::Ptr<cv::FeatureDetector> detector(new cv::SurfFeatureDetector(100, 1, 32, true, true));
+	////create SURF descriptor extractor
+	//cv::Ptr<cv::DescriptorExtractor> extractor(new cv::SurfDescriptorExtractor(100, 1, 32, true, true));
+	cv::Ptr<cv::FeatureDetector> detector(new cv::SiftFeatureDetector(1000, 10, 0.004, 100, 0.6));
+	cv::Ptr<cv::DescriptorExtractor> extractor(new cv::SiftDescriptorExtractor(1000, 10, 0.004, 100, 0.6));
 	//create BoF (or BoW) descriptor extractor
 	cv::BOWImgDescriptorExtractor bowDE(extractor, matcher);
 	//Create the BoW (or BoF) trainer
 	cv::BOWKMeansTrainer bowTrainer(dictionarySize, tc, retries, flags);
 
 	//std::vector<cv::Mat> clusteredFeaturesUnsorted(9);
+	for (int i = 0; i < FeatureVectorsSURFUnclustered.size(); i++)
+	{
+		if (FeatureVectorsSURFUnclustered[i].type() != CV_32F)
+		{
+			FeatureVectorsSURFUnclustered[i].convertTo(FeatureVectorsSURFUnclustered[i], CV_32F);
+		}
+	}
 
 	//cluster the feature vectors
 	for (int i = 0; i < int(TestImages.size()); i++)
 	{
-		dictionary = bowTrainer.cluster(FeatureVectorsSURFUnclustered[i]);;
+		dictionary = bowTrainer.cluster(FeatureVectorsSURFUnclustered[i]);
 		//Set the dictionary with the vocabulary we created in the first step
 		bowDE.setVocabulary(dictionary);
 
@@ -95,29 +113,7 @@ void FeatureExtractor::getBagOfWords(std::vector<cv::Mat> &TestImages, std::vect
 		//}
 	}
 
-	//int num_files = clusteredFeaturesUnsorted.size();
-	//int sze_rows = clusteredFeaturesUnsorted[0].rows;
-	//int sze_cols = clusteredFeaturesUnsorted[0].cols;
-	//int area = sze_rows * sze_cols;
-	//cv::Mat labelsTemp(num_files, 1, CV_32FC1);
-	//cv::Mat clusteredFeaturesTemp(num_files, area, CV_32FC1);
-	//int labelIndex = 0;
 
-	//// reshape Images to one Mat for the SVM
-	//for (cv::Mat feature : clusteredFeaturesUnsorted)
-	//{
-	//	int ii = 0;
-	//	for (int i = 0; i < feature.rows; i++)
-	//	{
-	//		for (int j = 0; j < feature.cols; j++)
-	//		{
-	//			clusteredFeaturesTemp.at<float>(labelIndex, ii++) = feature.at<int>(i, j);
-	//		}
-	//	}
-	//	labelsTemp.at<float>(labelIndex) = trainingLabels.at(labelIndex);
-	//	clusteredFeatures[ii].push_back(clusteredFeaturesTemp);
-	//	labelIndex++;
-	//}
 }
 
 void FeatureExtractor::computeHOGFeatures(std::vector<cv::Mat> &Images, std::vector<std::vector< cv::Mat >> &FeatureVectors)
